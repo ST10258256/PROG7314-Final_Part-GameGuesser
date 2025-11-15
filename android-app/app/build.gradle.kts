@@ -147,5 +147,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
+    // Biometric authentication
+   // implementation("androidx.biometric:biometric:1.1.0")
+   // implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+   implementation ("androidx.biometric:biometric:1.2.0-alpha05")
 }
 

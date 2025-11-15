@@ -2,12 +2,15 @@ package com.example.gameguesser
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.postDelayed
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.gameguesser.Class.User
@@ -20,7 +23,6 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.launch
-import java.util.logging.Handler
 
 class LoginActivity : AppCompatActivity() {
 
@@ -31,7 +33,10 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        //Change to true if there is an issue with logging
+        // 🔒 FIRST STEP → Require fingerprint before accessing login page
+        authenticateBiometric()
+
+        // -------------------- Your login code continues --------------------
         val devBypass = false
         if (devBypass) {
             Toast.makeText(this, "Bypassing login (DEV MODE)", Toast.LENGTH_SHORT).show()
@@ -45,40 +50,31 @@ class LoginActivity : AppCompatActivity() {
             insets
         }
 
-        // setup for sign in
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()  // only setup for basic email
+            .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // checks if they have already signed in
         val account = GoogleSignIn.getLastSignedInAccount(this)
 
-        //used this to test the offline mode, works
-        //val account: GoogleSignInAccount? = null
-
         if (account != null) {
-            // User still has a valid Google session
             goToMainActivity(account)
         } else {
-            // check SharedPreferences for offline mode
             val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
             val savedUserId = prefs.getString("userId", null)
             val savedUserName = prefs.getString("userName", null)
 
             if (savedUserId != null) {
-                // User logged in before, allow offline access
                 Toast.makeText(this, "Welcome back $savedUserName (offline)", Toast.LENGTH_SHORT).show()
-                android.os.Handler(Looper.getMainLooper()).postDelayed({
+                Handler(Looper.getMainLooper()).postDelayed({
                     goToMainActivity(null)
-                }, 500)}
+                }, 500)
+            }
         }
 
         val btnGoogleSignIn = findViewById<SignInButton>(R.id.btnGoogleSignIn)
-        btnGoogleSignIn.setOnClickListener {
-            signIn() // runs the sign if if not already signed in
-        }
+        btnGoogleSignIn.setOnClickListener { signIn() }
 
         signInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
@@ -86,17 +82,64 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // ---------------- ⭐️ BIOMETRIC AUTHENTICATION CODE ⭐️ ----------------
+    private fun authenticateBiometric() {
+        val biometricManager = BiometricManager.from(this)
+
+        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                // OK
+            }
+            else -> {
+                Toast.makeText(this, "Biometric authentication not available", Toast.LENGTH_LONG).show()
+                finish()
+                return
+            }
+        }
+
+        val executor = ContextCompat.getMainExecutor(this)
+
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    // allow user to continue
+                    Toast.makeText(applicationContext, "Authenticated", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    Toast.makeText(applicationContext, "Fingerprint not recognized", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+                    finish() // close app
+                }
+            })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Fingerprint Required")
+            .setSubtitle("Scan your fingerprint to access GameGuesser")
+            .setNegativeButtonText("Exit")
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
+    }
+
+    // ---------------- END BIOMETRIC ----------------
+
+
     private fun signIn() {
-        // gt the intent from the Google client and launch the sign-in flow
-        val signInIntent = googleSignInClient.signInIntent
-        signInLauncher.launch(signInIntent)
+        signInLauncher.launch(googleSignInClient.signInIntent)
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
             if (account != null) {
-                // saves them to shared pred for offline
                 val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
                 with(prefs.edit()) {
                     putString("userName", account.displayName)
@@ -104,7 +147,7 @@ class LoginActivity : AppCompatActivity() {
                     putString("userId", account.id)
                     apply()
                 }
-                // also saves them to room
+
                 val user = User(
                     userId = account.id ?: "",
                     userName = account.displayName ?: "Player",
@@ -116,10 +159,7 @@ class LoginActivity : AppCompatActivity() {
                     db.userDao().addUser(user)
                 }
 
-                // welcm back msg
                 Toast.makeText(this, "Welcome ${account.displayName}", Toast.LENGTH_SHORT).show()
-
-                // goes to main
                 goToMainActivity(account)
             }
         } catch (e: ApiException) {
@@ -127,12 +167,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
     private fun goToMainActivity(account: GoogleSignInAccount?) {
-        // flow to main, cant go back to login, needs to logout, ps. added in logout
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 }
-
