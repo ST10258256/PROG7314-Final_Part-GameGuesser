@@ -33,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // 🔒 FIRST STEP → Require fingerprint before accessing login page
+        //   Require fingerprint before accessing login page
         authenticateBiometric()
 
         // -------------------- Your login code continues --------------------
@@ -82,7 +82,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // ---------------- ⭐️ BIOMETRIC AUTHENTICATION CODE ⭐️ ----------------
+    // ----------------  BIOMETRIC AUTHENTICATION CODE  ----------------
     private fun authenticateBiometric() {
         val biometricManager = BiometricManager.from(this)
 
