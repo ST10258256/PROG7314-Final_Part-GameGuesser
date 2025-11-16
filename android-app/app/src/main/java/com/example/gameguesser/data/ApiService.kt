@@ -1,8 +1,11 @@
 package com.example.gameguesser.data
 
+import com.example.gameguesser.models.CompareRequest
+import com.example.gameguesser.models.ComparisonResponse
 import com.example.gameguesser.models.GuessResponse
 import com.example.gameguesser.models.RandomGameResponse
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -27,5 +30,10 @@ interface ApiService {
 
     @GET("api/games/{id}")
     fun getGameById(@Path("id") id: String): Call<Game>
+
+    @POST("api/Games/compare")
+    fun compareGame(
+        @Body compareRequest: CompareRequest
+    ): Call<ComparisonResponse>
 
 }

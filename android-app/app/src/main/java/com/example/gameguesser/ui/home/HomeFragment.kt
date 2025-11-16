@@ -17,6 +17,7 @@ import com.example.gameguesser.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
+
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
@@ -67,6 +68,11 @@ class HomeFragment : Fragment() {
         binding.playKeyWordsButton.setOnClickListener {
             findNavController().navigate(R.id.keyGameFragment)
         }
+
+        binding.playBonusGameButton.setOnClickListener {
+            findNavController().navigate(R.id.compareGameFragment)
+        }
+
         return root
     }
 

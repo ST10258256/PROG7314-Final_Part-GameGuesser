@@ -49,12 +49,11 @@
         android:label="Keyword Game"
         tools:layout="@layout/fragment_key_game" />
 
-    <!-- 🔥 NEW GAME MODE YOU WANT TO ADD -->
     <fragment
-        android:id="@+id/keywordBonusGameFragment"
-        android:name="com.example.gameguesser.ui.keyWordGame.KeywordBonusGameFragment"
-        android:label="Keyword Bonus Mode"
-        tools:layout="@layout/fragment_keyword_bonus_game" />
+        android:id="@+id/compareGameFragment"
+        android:name="com.example.gameguesser.ui.compareGameMode.CompareGameFragment"
+        android:label="Compare Game"
+        tools:layout="@layout/fragment_compare_game" />
 
     <fragment
         android:id="@+id/editProfileFragment"
