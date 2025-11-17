@@ -9,8 +9,7 @@ import com.example.gameguesser.data.Game
 import com.example.gameguesser.DAOs.GameDAO.GameDao
 import com.example.gameguesser.data.GameConverters
 
-
-@Database(entities = [Game::class], version = 1)
+@Database(entities = [Game::class], version = 3)
 @TypeConverters(GameConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun gameDao(): GameDao
@@ -25,14 +24,13 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "gameguesser_db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
+
                 INSTANCE = instance
                 instance
             }
         }
     }
 }
-
-
-
-
