@@ -147,5 +147,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
+    //Flex wrap
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }
 

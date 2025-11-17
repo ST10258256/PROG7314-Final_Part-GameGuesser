@@ -25,7 +25,7 @@ data class Game(
     var publisher: String = "",
     var description: String = "",
     var coverImageUrl: String = "",
-    var budget: Double = 0.0,
+    var budget: String = "",
     var saga: String = "",
     var pov: String = "",
     var clues: List<String> = emptyList(),

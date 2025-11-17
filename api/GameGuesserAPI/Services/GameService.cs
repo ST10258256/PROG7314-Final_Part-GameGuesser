@@ -19,6 +19,11 @@ namespace GameGuesserAPI.Services
     public async Task<Game> GetGameByIdAsync(string id) =>
     await _games.Find(g => g.Id == id).FirstOrDefaultAsync();
 
+    public async Task<Game?> GetGameByNameAsync(string name)
+    {
+    return await _games.Find(g => g.Name.ToLower() == name.ToLower()).FirstOrDefaultAsync();
+    }
+
 
     public async Task<Game> GetRandomGameAsync()
     {

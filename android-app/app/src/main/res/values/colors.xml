@@ -5,6 +5,9 @@
     <color name="p_gtextbox">#BEC3D2</color>
     <color name="purple_bg">#191937</color>
     <color name="lPurple_sub_bg">#3C3264</color>
+    <color name="green">#4CAF50</color>
+    <color name="red">#F44336</color>
+    <color name="purple_500">#9C27B0</color>
 
 
 </resources>
