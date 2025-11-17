@@ -78,5 +78,33 @@ public class GamesController : ControllerBase
         }
     }
 
+[HttpPost("compare")]
+public async Task<IActionResult> CompareGame([FromBody] CompareRequest request)
+{
+    var actualGame = await _gameService.GetGameByIdAsync(request.GameId);
+    var guessedGame = await _gameService.GetGameByNameAsync(request.GuessName);
+
+    if (actualGame == null || guessedGame == null)
+        return NotFound("Actual or guessed game not found");
+
+    var result = new ComparisonResult
+    {
+        Correct = actualGame.Name.Equals(guessedGame.Name, StringComparison.OrdinalIgnoreCase),
+        Matches = new Dictionary<string, bool>()
+        {
+            { "Genre", actualGame.Genre == guessedGame.Genre },
+            { "Platforms", actualGame.Platforms.SequenceEqual(guessedGame.Platforms) },
+            { "ReleaseYear", actualGame.ReleaseYear == guessedGame.ReleaseYear },
+            { "Developer", actualGame.Developer == guessedGame.Developer },
+            { "Publisher", actualGame.Publisher == guessedGame.Publisher },
+            { "Budget", actualGame.Budget == guessedGame.Budget },
+            { "Saga", actualGame.Saga == guessedGame.Saga },
+            { "POV", actualGame.POV == guessedGame.POV }
+        }
+    };
+
+    return Ok(result);
+}
+
 
 }

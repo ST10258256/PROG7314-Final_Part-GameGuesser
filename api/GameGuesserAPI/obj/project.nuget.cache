@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "N/I36CuLPqg=",
+  "dgSpecHash": "USVNQqm/m2Y=",
   "success": true,
-  "projectFilePath": "C:\\Users\\lukej\\StudioProjects\\PROG7314-POE-PART_TWO-GameGuesser\\api\\GameGuesserAPI\\GameGuesserAPI.csproj",
+  "projectFilePath": "C:\\Users\\lukej\\OneDrive\\Documents\\Varsity College\\PROG7314\\Final_Part\\PROG7314-Final_Part-GameGuesser\\PROG7314-Final_Part-GameGuesser\\api\\GameGuesserAPI\\GameGuesserAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\lukej\\.nuget\\packages\\awssdk.core\\3.7.100.14\\awssdk.core.3.7.100.14.nupkg.sha512",
     "C:\\Users\\lukej\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",

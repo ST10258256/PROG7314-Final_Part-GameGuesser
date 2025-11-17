@@ -28,7 +28,7 @@ object RetrofitClient {
                     publisher = jsonObj["publisher"]?.asString ?: "",
                     description = jsonObj["description"]?.asString ?: "",
                     coverImageUrl = jsonObj["coverImageUrl"]?.asString ?: "",
-                    budget = jsonObj["budget"]?.asDouble ?: 0.0,
+                    budget = jsonObj["budget"]?.asString ?: "",
                     saga = jsonObj["saga"]?.asString ?: "",
                     pov = jsonObj["pov"]?.asString ?: "",
                     clues = jsonObj["clues"]?.asJsonArray?.map { it.asString } ?: emptyList(),
