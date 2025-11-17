@@ -16,7 +16,7 @@
             android:id="@+id/textViewTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Encyclopedia"
+            android:text="@string/encyclopedia"
             android:textSize="26sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"

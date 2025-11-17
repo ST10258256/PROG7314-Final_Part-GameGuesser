@@ -31,7 +31,7 @@ class LanguagesFragment : Fragment() {
             val selectedLanguages = mutableListOf<String>()
 
             if (binding.cbEnglish.isChecked) selectedLanguages.add("English")
-            if (binding.cbAfikaaans.isChecked) selectedLanguages.add("Afrikaans")
+            if (binding.cbAfrikaans.isChecked) selectedLanguages.add("Afrikaans")
             if (binding.cbSpanish.isChecked) selectedLanguages.add("Spanish")
             if (binding.cbFrench.isChecked) selectedLanguages.add("French")
             if (binding.cbZulu.isChecked) selectedLanguages.add("Zulu")

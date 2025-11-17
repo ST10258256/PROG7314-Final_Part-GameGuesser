@@ -34,7 +34,7 @@
                 android:id="@+id/textTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Game Title"
+                android:text="@string/game_name"
                 android:textStyle="bold"
                 android:textSize="18sp" />
 
@@ -42,7 +42,7 @@
                 android:id="@+id/textGenre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Genre"
+                android:text="@string/genre"
                 android:textSize="14sp" />
 
         </LinearLayout>

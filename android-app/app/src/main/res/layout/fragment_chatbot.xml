@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:hint="Type a message"
+            android:hint="@string/type_a_message"
             android:imeOptions="actionSend"
             android:maxLines="4"
             android:minHeight="48dp" />
@@ -35,6 +35,6 @@
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Send" />
+            android:text="@string/send" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

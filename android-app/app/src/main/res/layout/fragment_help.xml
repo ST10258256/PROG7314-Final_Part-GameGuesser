@@ -14,7 +14,7 @@
         android:id="@+id/settingsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Help and FAQs"
+        android:text="@string/help_faq_title"
         android:textColor="@android:color/white"
         android:textSize="26sp"
         android:textStyle="bold"
@@ -43,7 +43,7 @@
             android:id="@+id/btnFaq1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="How do I play Game Guesser?"
+            android:text="@string/faq_q1"
             android:backgroundTint="#432F73"
             android:textColor="@android:color/white"
             android:gravity="start|center_vertical"/>
@@ -52,7 +52,7 @@
             android:id="@+id/tvFaq1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Game Guesser is a puzzle game where you guess games based on hints. Earn points and try to improve your streak!"
+            android:text="@string/faq_a1"
             android:textColor="#E0DAF5"
             android:padding="12dp"
             android:visibility="gone"
@@ -64,7 +64,7 @@
             android:id="@+id/btnFaq2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Can I reset my progress?"
+            android:text="@string/faq_q2"
             android:backgroundTint="#432F73"
             android:textColor="@android:color/white"
             android:gravity="start|center_vertical"
@@ -74,7 +74,7 @@
             android:id="@+id/tvFaq2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Currently, progress cannot be reset manually. To reset, you may need to log out and log in with a new account."
+            android:text="@string/faq_a2"
             android:textColor="#E0DAF5"
             android:padding="12dp"
             android:visibility="gone"
@@ -86,7 +86,7 @@
             android:id="@+id/btnFaq3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="How do I contact support?"
+            android:text="@string/faq_q3"
             android:backgroundTint="#432F73"
             android:textColor="@android:color/white"
             android:gravity="start|center_vertical"
@@ -96,19 +96,19 @@
             android:id="@+id/tvFaq3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="You can contact support via email at support@example.com. We'll respond within 48 hours."
+            android:text="@string/faq_a3"
             android:textColor="#E0DAF5"
             android:padding="12dp"
             android:visibility="gone"
             android:background="#432F73"
             android:layout_marginBottom="12dp"/>
 
-        <!-- FAQ Item 3 -->
+        <!-- FAQ Item 4 -->
         <Button
             android:id="@+id/btnFaq4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="How does game guesser cost?"
+            android:text="@string/faq_q4"
             android:backgroundTint="#432F73"
             android:textColor="@android:color/white"
             android:gravity="start|center_vertical"
@@ -118,19 +118,19 @@
             android:id="@+id/tvFaq4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Game is free"
+            android:text="@string/faq_a4"
             android:textColor="#E0DAF5"
             android:padding="12dp"
             android:visibility="gone"
             android:background="#432F73"
             android:layout_marginBottom="12dp"/>
 
-        <!-- FAQ Item 3 -->
+        <!-- FAQ Item 5 -->
         <Button
             android:id="@+id/btnFaq5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="How do I customize game guesser?"
+            android:text="@string/faq_q5"
             android:backgroundTint="#432F73"
             android:textColor="@android:color/white"
             android:gravity="start|center_vertical"
@@ -140,19 +140,19 @@
             android:id="@+id/tvFaq5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Customization is currently limited so currently there is only darkmode"
+            android:text="@string/faq_a5"
             android:textColor="#E0DAF5"
             android:padding="12dp"
             android:visibility="gone"
             android:background="#432F73"
             android:layout_marginBottom="12dp"/>
 
-        <!-- FAQ Item 3 -->
+        <!-- FAQ Item 6 -->
         <Button
             android:id="@+id/btnFaq6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="How do I delete my account?"
+            android:text="@string/faq_q6"
             android:backgroundTint="#432F73"
             android:textColor="@android:color/white"
             android:gravity="start|center_vertical"
@@ -162,19 +162,19 @@
             android:id="@+id/tvFaq6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Use the delete account action in the settings tab under account deletion"
+            android:text="@string/faq_a6"
             android:textColor="#E0DAF5"
             android:padding="12dp"
             android:visibility="gone"
             android:background="#432F73"
             android:layout_marginBottom="12dp"/>
 
-        <!-- FAQ Item 3 -->
+        <!-- FAQ Item 7 -->
         <Button
             android:id="@+id/btnFaq7"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="How do I find my father?"
+            android:text="@string/faq_q7"
             android:backgroundTint="#432F73"
             android:textColor="@android:color/white"
             android:gravity="start|center_vertical"
@@ -184,7 +184,7 @@
             android:id="@+id/tvFaq7"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This app can not help you locate any missing parental figures."
+            android:text="@string/faq_a7"
             android:textColor="#E0DAF5"
             android:padding="12dp"
             android:visibility="gone"

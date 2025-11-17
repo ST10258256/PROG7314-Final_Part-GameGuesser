@@ -14,7 +14,7 @@
         android:id="@+id/settingsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit My Profile"
+        android:text="@string/edit_my_profile"
         android:textColor="@android:color/white"
         android:textSize="26sp"
         android:textStyle="bold"
@@ -27,7 +27,6 @@
     <LinearLayout
         android:id="@+id/settingsContainer"
         android:layout_width="match_parent"
-
         android:layout_height="0dp"
         android:background="@drawable/rounded_top_bg"
         android:gravity="center_horizontal"
@@ -46,8 +45,7 @@
             android:scaleType="centerCrop"
             android:background="@drawable/circle_background"
             android:clipToOutline="true"
-            android:contentDescription="User Profile" />
-
+            android:contentDescription="@string/content_user_profile" />
 
         <!-- Displayed Username -->
         <TextView
@@ -55,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Guest"
+            android:text="@string/guest"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/white" />
@@ -68,7 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_gravity="left"
-            android:text="Username"
+            android:text="@string/username_label"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/white" />
@@ -80,13 +78,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Username"
+            android:hint="@string/username_hint"
             android:padding="15dp"
             android:inputType="textPersonName"
             android:textColor="@android:color/white"
             android:backgroundTint="@android:color/white" />
 
-        <!-- Displayed Username -->
+        <!-- Displayed Phone Number -->
         <TextView
             android:layout_marginLeft="20dp"
             android:id="@+id/sPhoneN"
@@ -94,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_gravity="left"
-            android:text="Phone Number"
+            android:text="@string/phone_number_label"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/white" />
@@ -106,7 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Phone Number"
+            android:hint="@string/phone_number_hint"
             android:padding="15dp"
             android:inputType="phone"
             android:textColor="@android:color/white"
@@ -119,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="user@email.com"
+            android:text="@string/email_placeholder"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
@@ -129,7 +127,7 @@
             android:layout_width="295dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Update Profile" />
+            android:text="@string/update_profile" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

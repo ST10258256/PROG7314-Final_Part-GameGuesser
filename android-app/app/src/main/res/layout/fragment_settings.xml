@@ -13,7 +13,7 @@
         android:id="@+id/settingsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Settings"
+        android:text="@string/title_settings"
         android:textColor="@android:color/white"
         android:textSize="26sp"
         android:textStyle="bold"
@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Guest"
+            android:text="@string/guest"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/white"/>
@@ -66,7 +66,7 @@
             android:background="?attr/selectableItemBackground"
             android:gravity="start|center_vertical"
             android:paddingEnd="12dp"
-            android:text="Profile   >"
+            android:text="@string/profile"
             android:textAlignment="viewStart"
             android:textAllCaps="false" />
 
@@ -77,7 +77,7 @@
             android:background="?attr/selectableItemBackground"
             android:gravity="start|center_vertical"
             android:paddingEnd="12dp"
-            android:text="Delete Account   >"
+            android:text="@string/delete_account"
             android:textAlignment="viewStart"
             android:textAllCaps="false" />
 
@@ -88,7 +88,7 @@
             android:background="?attr/selectableItemBackground"
             android:gravity="start|center_vertical"
             android:paddingEnd="12dp"
-            android:text="Help and FAQs   >"
+            android:text="@string/help_and_faqs"
             android:textAlignment="viewStart"
             android:textAllCaps="false" />
 
@@ -99,7 +99,7 @@
             android:background="?attr/selectableItemBackground"
             android:gravity="start|center_vertical"
             android:paddingEnd="12dp"
-            android:text="Terms and Conditions   >"
+            android:text="@string/terms_and_conditions"
             android:textAlignment="viewStart"
             android:textAllCaps="false" />
 
@@ -110,7 +110,7 @@
             android:background="?attr/selectableItemBackground"
             android:gravity="start|center_vertical"
             android:paddingEnd="12dp"
-            android:text="Languages   >"
+            android:text="@string/languages"
             android:textAlignment="viewStart"
             android:textAllCaps="false" />
 
@@ -121,7 +121,7 @@
             android:layout_width="295dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Logout" />
+            android:text="@string/logout" />
     </LinearLayout>
 
 

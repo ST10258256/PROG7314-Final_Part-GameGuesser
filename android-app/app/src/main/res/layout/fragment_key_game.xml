@@ -20,41 +20,40 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_heart"
-            android:contentDescription="Guess left" />
+            android:contentDescription="@string/guess_left" />
 
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_heart"
-            android:contentDescription="Guess left" />
+            android:contentDescription="@string/guess_left" />
 
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_heart"
-            android:contentDescription="Guess left" />
+            android:contentDescription="@string/guess_left" />
 
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_heart"
-            android:contentDescription="Guess left" />
+            android:contentDescription="@string/guess_left" />
 
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_heart"
-            android:contentDescription="Guess left" />
+            android:contentDescription="@string/guess_left" />
 
     </LinearLayout>
-
 
     <!-- Guess Input with AutoComplete -->
     <AutoCompleteTextView
         android:id="@+id/guessInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Guess the game"
+        android:hint="@string/guess_input_hint"
         android:background="@drawable/rounded_edittext"
         android:padding="12dp"
         android:textColor="@android:color/white"
@@ -72,13 +71,12 @@
         app:chipSpacing="8dp"
         android:gravity="center"/>
 
-
     <!-- Guess Button -->
     <Button
         android:id="@+id/guessButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guess"
+        android:text="@string/guess_button"
         android:textColor="@android:color/white"
         android:backgroundTint="#2E2157"
         android:layout_marginTop="16dp"/>

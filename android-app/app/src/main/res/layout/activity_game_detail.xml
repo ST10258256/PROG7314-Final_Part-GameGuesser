@@ -20,7 +20,7 @@
             android:adjustViewBounds="true"
             android:maxHeight="350dp"
             android:scaleType="fitCenter"
-            android:contentDescription="Game Cover"
+            android:contentDescription="@string/game_cover"
             android:layout_marginBottom="16dp"
             android:background="@android:color/darker_gray"
             android:elevation="4dp" />
@@ -31,7 +31,7 @@
             android:id="@+id/textViewName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Game Name"
+            android:text="@string/game_name"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#212121"
@@ -55,7 +55,7 @@
                     android:id="@+id/textViewGenre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Genre: "
+                    android:text="@string/genre_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -64,7 +64,7 @@
                     android:id="@+id/textViewPlatform"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Platforms: "
+                    android:text="@string/platforms_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -73,7 +73,7 @@
                     android:id="@+id/textViewReleaseYear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Release Year: "
+                    android:text="@string/release_year_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -82,7 +82,7 @@
                     android:id="@+id/textViewDeveloper"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Developer: "
+                    android:text="@string/developer_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -91,7 +91,7 @@
                     android:id="@+id/textViewPublisher"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Publisher: "
+                    android:text="@string/publisher_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -100,7 +100,7 @@
                     android:id="@+id/textViewBudget"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Budget: "
+                    android:text="@string/budget_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -109,7 +109,7 @@
                     android:id="@+id/textViewSaga"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Saga: "
+                    android:text="@string/saga_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -118,7 +118,7 @@
                     android:id="@+id/textViewPOV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="POV: "
+                    android:text="@string/pov_label"
                     android:textSize="16sp"
                     android:textColor="#424242"
                     android:layout_marginBottom="4dp" />
@@ -143,7 +143,7 @@
                     android:id="@+id/textViewDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Description"
+                    android:text="@string/description"
                     android:textSize="16sp"
                     android:textColor="#424242" />
 

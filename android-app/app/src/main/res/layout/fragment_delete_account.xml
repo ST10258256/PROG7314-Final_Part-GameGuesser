@@ -13,7 +13,7 @@
         android:id="@+id/settingsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Account deletion"
+        android:text="@string/account_deletion"
         android:textColor="@android:color/white"
         android:textSize="26sp"
         android:textStyle="bold"
@@ -41,7 +41,7 @@
             android:id="@+id/tvDeleteQuestion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Are you sure you want to delete your account?"
+            android:text="@string/delete_confirm_question"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:paddingTop="20dp"
@@ -54,7 +54,7 @@
             android:id="@+id/tvDeleteExplanation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Deleting your profile will permanently remove all your personal data and game progress. This action cannot be undone."
+            android:text="@string/delete_explanation"
             android:textColor="@color/black"
             android:layout_margin="10dp"
             android:textSize="16sp"
@@ -69,13 +69,12 @@
             android:id="@+id/btnDeleteAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete my account"
+            android:text="@string/delete_my_account"
             android:textColor="@android:color/white"
             android:backgroundTint="@color/purple_bg"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
             android:layout_marginTop="16dp"/>
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

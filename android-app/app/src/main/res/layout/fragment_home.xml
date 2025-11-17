@@ -23,7 +23,7 @@
             android:id="@+id/welcomeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hi, Welcome Back"
+            android:text="@string/welcome_title"
             android:textColor="@android:color/white"
             android:textSize="22sp"
             android:textStyle="bold"
@@ -33,7 +33,7 @@
             android:id="@+id/usernameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User"
+            android:text="@string/welcome_username_placeholder"
             android:textColor="#E0DAF5"
             android:textSize="18sp"
             android:gravity="center"
@@ -43,7 +43,7 @@
             android:id="@+id/descriptionText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome to Game Guesser! Test your skills by guessing games."
+            android:text="@string/welcome_description"
             android:textColor="#C5BEDF"
             android:textSize="14sp"
             android:gravity="center"
@@ -100,7 +100,7 @@
     </androidx.cardview.widget.CardView>
 
 
-    <!-- 🔥 NEW GAME MODE CARD (MATCHES YOUR STYLE EXACTLY) -->
+    <!-- NEW GAME MODE CARD (MATCHES YOUR STYLE EXACTLY) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/bonusGameCard"
         android:layout_width="0dp"
@@ -124,7 +124,7 @@
                 android:id="@+id/bonusGameTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bonus Game Mode"
+                android:text="@string/key_words_title"
                 android:textColor="#2E2157"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
@@ -133,7 +133,7 @@
                 android:id="@+id/bonusGameStreak"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Streak: "
+                android:text="@string/key_words_streak"
                 android:textColor="#FF9800"
                 android:textSize="18sp"
                 android:layout_marginTop="8dp"/>
@@ -142,7 +142,7 @@
                 android:id="@+id/playBonusGameButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Play"
+                android:text="@string/play_button"
                 android:textColor="@android:color/white"
                 android:backgroundTint="#2E2157"
                 android:layout_marginTop="16dp"/>

@@ -1,4 +1,4 @@
-//package com.example.gameguesser
+package com.example.gameguesser//package com.example.gameguesser
 //
 //import android.app.Activity
 //import android.app.AlertDialog
