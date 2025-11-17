@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GameGuesserAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a476feb16c5128a2908166e41dce3b8641c92bb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+01e8d7e8edffab99b5c79c6bb9477488133780da")]
 [assembly: System.Reflection.AssemblyProductAttribute("GameGuesserAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GameGuesserAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
