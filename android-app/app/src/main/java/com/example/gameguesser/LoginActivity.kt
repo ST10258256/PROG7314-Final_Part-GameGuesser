@@ -3,6 +3,8 @@ package com.example.gameguesser
 import android.content.Intent
 import android.os.Bundle
 import android.os.Looper
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,7 +13,9 @@ import androidx.core.os.postDelayed
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.gameguesser.Class.User
+import com.example.gameguesser.Class.LocalUser
 import com.example.gameguesser.Database.UserDatabase
+import com.example.gameguesser.data.PasswordUtils
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -19,19 +23,24 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.logging.Handler
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var signInLauncher: ActivityResultLauncher<Intent>
 
+    private lateinit var emailField: EditText
+    private lateinit var passwordField: EditText
+    private lateinit var btnEmailLogin: Button
+    private lateinit var btnRegister: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        //Change to true if there is an issue with logging
         val devBypass = false
         if (devBypass) {
             Toast.makeText(this, "Bypassing login (DEV MODE)", Toast.LENGTH_SHORT).show()
@@ -45,58 +54,64 @@ class LoginActivity : AppCompatActivity() {
             insets
         }
 
-        // setup for sign in
+        // GOOGLE SIGN-IN SETUP
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()  // only setup for basic email
+            .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // checks if they have already signed in
         val account = GoogleSignIn.getLastSignedInAccount(this)
-
-        //used this to test the offline mode, works
-        //val account: GoogleSignInAccount? = null
-
         if (account != null) {
-            // User still has a valid Google session
             goToMainActivity(account)
         } else {
-            // check SharedPreferences for offline mode
             val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
             val savedUserId = prefs.getString("userId", null)
             val savedUserName = prefs.getString("userName", null)
 
             if (savedUserId != null) {
-                // User logged in before, allow offline access
                 Toast.makeText(this, "Welcome back $savedUserName (offline)", Toast.LENGTH_SHORT).show()
                 android.os.Handler(Looper.getMainLooper()).postDelayed({
                     goToMainActivity(null)
-                }, 500)}
+                }, 500)
+            }
         }
 
+        // Google sign-in button
         val btnGoogleSignIn = findViewById<SignInButton>(R.id.btnGoogleSignIn)
         btnGoogleSignIn.setOnClickListener {
-            signIn() // runs the sign if if not already signed in
+            signIn()
         }
 
         signInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handleSignInResult(task)
         }
+
+        // EMAIL LOGIN UI
+        emailField = findViewById(R.id.etEmail)
+        passwordField = findViewById(R.id.etPassword)
+        btnEmailLogin = findViewById(R.id.btnEmailLogin)
+        btnRegister = findViewById(R.id.btnRegister)
+
+        btnEmailLogin.setOnClickListener {
+            loginWithEmail()
+        }
+
+        btnRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+        }
     }
 
     private fun signIn() {
-        // gt the intent from the Google client and launch the sign-in flow
-        val signInIntent = googleSignInClient.signInIntent
-        signInLauncher.launch(signInIntent)
+        signInLauncher.launch(googleSignInClient.signInIntent)
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
             if (account != null) {
-                // saves them to shared pred for offline
+
                 val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
                 with(prefs.edit()) {
                     putString("userName", account.displayName)
@@ -104,7 +119,7 @@ class LoginActivity : AppCompatActivity() {
                     putString("userId", account.id)
                     apply()
                 }
-                // also saves them to room
+
                 val user = User(
                     userId = account.id ?: "",
                     userName = account.displayName ?: "Player",
@@ -112,14 +127,11 @@ class LoginActivity : AppCompatActivity() {
                 )
 
                 val db = UserDatabase.getDatabase(this)
-                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     db.userDao().addUser(user)
                 }
 
-                // welcm back msg
                 Toast.makeText(this, "Welcome ${account.displayName}", Toast.LENGTH_SHORT).show()
-
-                // goes to main
                 goToMainActivity(account)
             }
         } catch (e: ApiException) {
@@ -127,12 +139,51 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun loginWithEmail() {
+        val email = emailField.text.toString().trim()
+        val password = passwordField.text.toString().trim()
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val db = UserDatabase.getDatabase(this)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            // Use localUserDao (where Register stored LocalUser)
+            val localUser = db.localUserDao().getUser(email)
+
+            runOnUiThread {
+                if (localUser == null) {
+                    Toast.makeText(this@LoginActivity, "Account not found", Toast.LENGTH_SHORT).show()
+                    return@runOnUiThread
+                }
+
+                val hashedInput = PasswordUtils.hash(password)
+
+                if (hashedInput != localUser.passwordHash) {
+                    Toast.makeText(this@LoginActivity, "Incorrect password", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Save prefs for offline welcome like Google flow
+                    val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+                    with(prefs.edit()) {
+                        putString("userName", localUser.userName)
+                        putString("userEmail", localUser.email)
+                        putString("userId", localUser.email) // using email as id for local users
+                        apply()
+                    }
+
+                    Toast.makeText(this@LoginActivity, "Welcome back ${localUser.userName}", Toast.LENGTH_SHORT).show()
+                    goToMainActivity(null)
+                }
+            }
+        }
+    }
 
     private fun goToMainActivity(account: GoogleSignInAccount?) {
-        // flow to main, cant go back to login, needs to logout, ps. added in logout
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
 }
-
