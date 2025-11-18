@@ -82,10 +82,11 @@ public class GamesController : ControllerBase
 public async Task<IActionResult> CompareGame([FromBody] CompareRequest request)
 {
     var actualGame = await _gameService.GetGameByIdAsync(request.GameId);
-    var guessedGame = await _gameService.GetGameByNameAsync(request.GuessName);
-
     if (actualGame == null)
         return NotFound("Actual game not found");
+
+    // Try to get guessed game, but it might be null
+    var guessedGame = await _gameService.GetGameByNameAsync(request.GuessName);
 
     var result = new ComparisonResult
     {
@@ -105,12 +106,20 @@ public async Task<IActionResult> CompareGame([FromBody] CompareRequest request)
     }
     else
     {
-        result.Matches["ReleaseYear"] = "none";
+        result.Matches["ReleaseYear"] = "none"; 
     }
 
-    // Other simple comparisons
-    result.Matches["Genre"] = actualGame.Genre.Equals(request.GuessName, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
-  
+    // Genre comparison
+    if (guessedGame != null)
+        result.Matches["Genre"] = actualGame.Genre.Equals(guessedGame.Genre, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    else
+        result.Matches["Genre"] = "none";
+
+    // Example for Budget:
+    if (guessedGame != null)
+        result.Matches["Budget"] = actualGame.Budget.Equals(guessedGame.Budget, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    else
+        result.Matches["Budget"] = "none";
 
     return Ok(result);
 }
