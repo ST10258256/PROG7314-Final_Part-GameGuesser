@@ -153,24 +153,19 @@ class CompareGameFragment : Fragment() {
         }
     }
 
-    private fun submitGuess(gameId: String, guess: String) {
-
-        RetrofitClient.api.compareGame(CompareRequest(gameId, guess))
+    private fun submitGuess(gameId: String, guess: String, guessedYear: Int? = null) {
+        val request = CompareRequest(gameId, guess, guessedYear)
+        RetrofitClient.api.compareGame(request)
             .enqueue(object : Callback<ComparisonResponse> {
-
                 override fun onResponse(
                     call: Call<ComparisonResponse>,
                     response: Response<ComparisonResponse>
                 ) {
                     val result = response.body() ?: return
-
+                    Log.d("COMPARE_DEBUG", "Comparison result: $result")
                     updateComparisonUI(result.matches)
-
-                    if (result.correct) {
-                        showEndGameDialog(true, currentGameName ?: "Unknown", currentGameCover)
-                    } else {
-                        loseHeart()
-                    }
+                    if (result.correct) showEndGameDialog(true, currentGameName ?: "Unknown", currentGameCover)
+                    else loseHeart()
                 }
 
                 override fun onFailure(call: Call<ComparisonResponse>, t: Throwable) {
@@ -178,6 +173,8 @@ class CompareGameFragment : Fragment() {
                 }
             })
     }
+
+
 
     // UI Updating
     private fun updateComparisonUI(matches: Map<String, String>) {
@@ -211,8 +208,6 @@ class CompareGameFragment : Fragment() {
             if (key.equals("releaseYear", ignoreCase = true)) {
                 when (status.lowercase()) {
                     "higher" -> {
-                       // Log.d("COMPARE_DEBUG", "ReleaseYear result = ${comparisonResult.matches["ReleaseYear"]}")
-                        Log.d("COMPARE_DEBUG", "It shows the up arrow")
                         icon.setImageResource(R.drawable.ic_arrow_up)
                         icon.visibility = View.VISIBLE
                     }
@@ -226,6 +221,7 @@ class CompareGameFragment : Fragment() {
                     }
                 }
             }
+
 
             chipContainer.addView(chipView)
         }
