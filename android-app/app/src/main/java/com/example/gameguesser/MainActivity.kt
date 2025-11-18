@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -28,9 +29,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import android.app.AlarmManager
 
-
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+      private lateinit var navController: NavController
 
     private fun createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -67,8 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         createNotificationChannel()
 
-        // android 13 and up
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+          if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
             } else {
@@ -78,21 +79,19 @@ class MainActivity : AppCompatActivity() {
             scheduleNotifications()
         }
 
-        // --- Start background sync ---
-        val dao = AppDatabase.getDatabase(this).gameDao()
+          val dao = AppDatabase.getDatabase(this).gameDao()
         val repository = GameRepository(dao, RetrofitClient.api)
         CoroutineScope(Dispatchers.IO).launch {
             repository.syncFromApi()
         }
 
-        // --- ViewBinding ---
-        binding = ActivityMainBinding.inflate(layoutInflater)
+         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        // --- Navigation setup ---
         val navView: BottomNavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        navController = findNavController(R.id.nav_host_fragment_activity_main)
+
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_home,
@@ -101,11 +100,18 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_settings
             )
         )
-        setupActionBarWithNavController(navController, appBarConfiguration)
+           setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        // --- WindowInsets for navView and navHost ---
-        ViewCompat.setOnApplyWindowInsetsListener(navView) { v, insets ->
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+            binding.toolbar.setNavigationOnClickListener {
+            if (!navController.navigateUp()) {
+                finish()
+            }
+        }
+
+            ViewCompat.setOnApplyWindowInsetsListener(navView) { v, insets ->
             val navBarInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             v.updatePadding(bottom = navBarInset)
             insets
@@ -118,7 +124,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // permsison for notif
+      override fun onSupportNavigateUp(): Boolean {
+        return if (::navController.isInitialized && navController.navigateUp()) {
+            true
+        } else {
+            finish()
+            true
+        }
+    }
+
+
+    override fun onBackPressed() {
+        if (::navController.isInitialized && navController.navigateUp()) {
+            // navigated up successfully
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

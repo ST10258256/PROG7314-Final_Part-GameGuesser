@@ -63,9 +63,9 @@ class SettingsFragment : Fragment() {
         }
 
         //Navigate to Delete Account Profile
-        binding.btnDeleteAccount.setOnClickListener {
+      /*  binding.btnDeleteAccount.setOnClickListener {
             findNavController().navigate(R.id.deleteAccountFragment)
-        }
+        } */
 
         //Navigate to Help
         binding.btnHelp.setOnClickListener {

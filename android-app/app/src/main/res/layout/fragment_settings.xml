@@ -70,16 +70,7 @@
             android:textAlignment="viewStart"
             android:textAllCaps="false" />
 
-        <Button
-            android:id="@+id/btnDeleteAccount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="start|center_vertical"
-            android:paddingEnd="12dp"
-            android:text="@string/delete_account"
-            android:textAlignment="viewStart"
-            android:textAllCaps="false" />
+
 
         <Button
             android:id="@+id/btnHelp"
