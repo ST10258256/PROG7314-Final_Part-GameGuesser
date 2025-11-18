@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.content.Context
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -205,9 +206,13 @@ class CompareGameFragment : Fragment() {
             chipView.backgroundTintList =
                 ColorStateList.valueOf(resources.getColor(color, null))
 
+            Log.d("COMPARE_DEBUG", "Key: $key, Status: $status")
+
             if (key.equals("releaseYear", ignoreCase = true)) {
                 when (status.lowercase()) {
                     "higher" -> {
+                       // Log.d("COMPARE_DEBUG", "ReleaseYear result = ${comparisonResult.matches["ReleaseYear"]}")
+                        Log.d("COMPARE_DEBUG", "It shows the up arrow")
                         icon.setImageResource(R.drawable.ic_arrow_up)
                         icon.visibility = View.VISIBLE
                     }

@@ -4,5 +4,6 @@ namespace GameGuesserAPI.Models
     {
         public string GameId { get; set; } = null!;
         public string GuessName { get; set; } = null!;
+        public int? GuessedReleaseYear { get; set; }
     }
 }
