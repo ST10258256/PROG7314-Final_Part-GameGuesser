@@ -27,6 +27,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import android.app.AlarmManager
+import androidx.lifecycle.lifecycleScope
 
 
 class MainActivity : AppCompatActivity() {
@@ -80,10 +81,13 @@ class MainActivity : AppCompatActivity() {
 
         // --- Start background sync ---
         val dao = AppDatabase.getDatabase(this).gameDao()
-        val repository = GameRepository(dao, RetrofitClient.api)
+        val repository = GameRepository(dao, RetrofitClient.api, this)
+
         CoroutineScope(Dispatchers.IO).launch {
             repository.syncFromApi()
         }
+
+
 
         // --- ViewBinding ---
         binding = ActivityMainBinding.inflate(layoutInflater)

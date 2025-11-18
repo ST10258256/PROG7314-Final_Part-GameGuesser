@@ -25,6 +25,7 @@ import com.example.gameguesser.R
 import com.example.gameguesser.data.RetrofitClient
 import com.example.gameguesser.data.Game
 import com.example.gameguesser.repository.GameRepository
+import com.example.gameguesser.utils.NetworkUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Job
@@ -37,9 +38,28 @@ class EncyclopediaFragment : Fragment() {
     private lateinit var adapter: GameAdapter
     private var allGames = listOf<Game>()
 
-    private val genreOptions = listOf("All", "Action", "Action-Adventure", "Action‑RPG","Battle Royale", "Card Battle", "Co-op Adventure", "Fashion", "Fighting", "First-Person Shooter", "Fitness", "Life Simulation", "MOBA","Metroidvania","RPG","Racing","Real Time Tactics","Retro","Roguelike","Sandbox","Soulslike","Sports","Stealth","Strategy","Survival Horror", "Third‑Person Shooter","Tower Defense","Trivia","Other")
-    private val platformOptions = listOf("All", "PC", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5", "Xbox 360", "Xbox Series X/S","Mac","Wii","3DS","iOS","Android","macOS","Windows", "Nintendo Switch", "Linux", "Xbox One","Nintendo DS","DS","Game Boy Advance","GameCube","Wii U","Switch","IOS Mobile","Xbox","PlayStation","OS X","PlayStation Vita","Mac OS X")
-    private val povOptions = listOf("All", "First-person", "Third-person", "Top-down", "Side-scroll", "Isometric", "2.5D", "2D", "Dual Perspective", "Multiple","Various")
+    private val genreOptions = listOf(
+        "All", "Action", "Action-Adventure", "Action‑RPG", "Battle Royale",
+        "Card Battle", "Co-op Adventure", "Fashion", "Fighting",
+        "First-Person Shooter", "Fitness", "Life Simulation", "MOBA",
+        "Metroidvania", "RPG", "Racing", "Real Time Tactics", "Retro",
+        "Roguelike", "Sandbox", "Soulslike", "Sports", "Stealth",
+        "Strategy", "Survival Horror", "Third‑Person Shooter", "Tower Defense",
+        "Trivia", "Other"
+    )
+
+    private val platformOptions = listOf(
+        "All", "PC", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5",
+        "Xbox 360", "Xbox Series X/S", "Mac", "Wii", "3DS", "iOS", "Android",
+        "macOS", "Windows", "Nintendo Switch", "Linux", "Xbox One", "Nintendo DS",
+        "DS", "Game Boy Advance", "GameCube", "Wii U", "Switch", "IOS Mobile",
+        "Xbox", "PlayStation", "OS X", "PlayStation Vita", "Mac OS X"
+    )
+
+    private val povOptions = listOf(
+        "All", "First-person", "Third-person", "Top-down", "Side-scroll",
+        "Isometric", "2.5D", "2D", "Dual Perspective", "Multiple", "Various"
+    )
 
     private var currentGenre = "All"
     private var currentPlatform = "All"
@@ -71,13 +91,11 @@ class EncyclopediaFragment : Fragment() {
         // SearchView setup
         val searchView = view.findViewById<SearchView>(R.id.searchViewGames)
         searchView.queryHint = "Search games..."
-
         val searchEditText = searchView.findViewById<SearchView.SearchAutoComplete>(
             androidx.appcompat.R.id.search_src_text
         )
         searchEditText.setTextColor(Color.WHITE)
         searchEditText.setHintTextColor(Color.WHITE)
-
         val searchIcon = searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
         searchIcon.setColorFilter(Color.WHITE)
 
@@ -95,6 +113,7 @@ class EncyclopediaFragment : Fragment() {
                 return true
             }
         })
+
         searchView.setOnCloseListener {
             currentSearch = ""
             applyFiltersAndSearch()
@@ -106,6 +125,7 @@ class EncyclopediaFragment : Fragment() {
         }
 
         fetchGames()
+
         return view
     }
 
@@ -117,10 +137,14 @@ class EncyclopediaFragment : Fragment() {
 
     private fun fetchGames() {
         val dao = AppDatabase.getDatabase(requireContext()).gameDao()
-        val repository = GameRepository(dao, RetrofitClient.api)
+        val repository = GameRepository(dao, RetrofitClient.api, requireContext())
 
         lifecycleScope.launch {
             try {
+                // Sync from API if online
+                if (NetworkUtils.isOnline(requireContext())) {
+                    repository.syncFromApi()
+                }
                 allGames = repository.getAllGames()
                 adapter.updateGames(allGames)
                 Log.d("GAME_FETCH", "Loaded ${allGames.size} games")
@@ -130,6 +154,7 @@ class EncyclopediaFragment : Fragment() {
             }
         }
     }
+
 
     private fun showFilterBottomSheet() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_filter, null)
@@ -146,7 +171,7 @@ class EncyclopediaFragment : Fragment() {
         spinnerPlatform.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, platformOptions)
         spinnerPOV.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, povOptions)
 
-        val years = mutableListOf("All") + allGames.mapNotNull { it.releaseYear?.toString() }.distinct().sortedDescending()
+        val years = listOf("All") + allGames.map { it.releaseYear.toString() }.distinct().sortedDescending()
         spinnerYear.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, years)
 
         spinnerGenre.setSelection(genreOptions.indexOf(currentGenre).coerceAtLeast(0))
@@ -176,20 +201,20 @@ class EncyclopediaFragment : Fragment() {
 
     private fun applyFiltersAndSearch() {
         val filtered = allGames.filter { game ->
-            val genreMatch = currentGenre == "All" || (game.genre?.equals(currentGenre, ignoreCase = true) ?: false)
-            val povMatch = currentPOV == "All" || (game.pov?.equals(currentPOV, ignoreCase = true) ?: false)
-            val platformMatch = currentPlatform == "All" || (game.platforms?.any { it.equals(currentPlatform, ignoreCase = true) } ?: false)
-            val yearMatch = currentYear == "All" || (game.releaseYear?.toString() == currentYear)
+            val genreMatch = currentGenre == "All" || game.genre.equals(currentGenre, ignoreCase = true)
+            val povMatch = currentPOV == "All" || game.pov.equals(currentPOV, ignoreCase = true)
+            val platformMatch = currentPlatform == "All" || game.platforms.any { it.equals(currentPlatform, ignoreCase = true) }
+            val yearMatch = currentYear == "All" || game.releaseYear.toString() == currentYear
 
             val query = currentSearch.trim()
             val searchMatch = if (query.isEmpty()) {
                 true
             } else {
                 val lower = query.lowercase()
-                val nameMatches = game.name?.lowercase()?.contains(lower) ?: false
-                val descMatches = (game.description?.lowercase()?.contains(lower) ?: false)
-                val genreMatches = game.genre?.lowercase()?.contains(lower) ?: false
-                val platformMatches = game.platforms?.any { it.lowercase().contains(lower) } ?: false
+                val nameMatches = game.name.lowercase().contains(lower)
+                val descMatches = game.description.lowercase().contains(lower)
+                val genreMatches = game.genre.lowercase().contains(lower)
+                val platformMatches = game.platforms.any { it.lowercase().contains(lower) }
                 nameMatches || descMatches || genreMatches || platformMatches
             }
 
