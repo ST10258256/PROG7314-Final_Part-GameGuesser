@@ -34,6 +34,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Call
@@ -48,6 +49,8 @@ class CompareGameFragment : Fragment() {
     private var currentGameId: String? = null
     private var currentGameName: String? = null
     private var currentGameCover: String? = null
+
+    private val consecutiveStreakFlow = MutableStateFlow(0)
 
     private lateinit var comparisonContainer: LinearLayout
     private lateinit var resultText: TextView
@@ -185,7 +188,7 @@ class CompareGameFragment : Fragment() {
         val guessTitle = card.findViewById<TextView>(R.id.guessTitle)
         val chipContainer = card.findViewById<FlexboxLayout>(R.id.chipContainer)
 
-        guessTitle.text = "You guessed: ${guessInput.text}"
+        guessTitle.text = getString(R.string.user_guess, guessInput.text) //"You guessed: ${guessInput.text}"
 
         for ((key, status) in matches) {
 
@@ -257,6 +260,7 @@ class CompareGameFragment : Fragment() {
         val nameText = dialogView.findViewById<TextView>(R.id.gameName)
         val playAgainBtn = dialogView.findViewById<Button>(R.id.playAgainButton)
         val mainMenuBtn = dialogView.findViewById<Button>(R.id.mainMenuButton)
+        val consecutiveStreak = dialogView.findViewById<TextView>(R.id.consecutiveStreakTitle)
 
         if (won) {
             titleText.text = getString(R.string.congrats)
@@ -278,6 +282,10 @@ class CompareGameFragment : Fragment() {
                     // Update the last played date to now
                     user.lastPlayedCG = System.currentTimeMillis()
 
+                    user.consecStreakCG += 1 // Increment the consecutive streak
+                    //adding values to stateflow
+                    consecutiveStreakFlow.value = user.consecStreakCG
+
                     // Save the updated user back to the database
                     userDao.updateUser(user)
 
@@ -289,8 +297,29 @@ class CompareGameFragment : Fragment() {
             }
         } else {
             titleText.text = getString(R.string.failure)
+            lifecycleScope.launch(Dispatchers.IO) {
+                val userId = getLoggedInUserId() // You need a function to get the current user's ID
+                if (userId == null) return@launch
+
+                val user = userDao.getUser(userId)
+                if (user != null) {
+
+                    user.consecStreakCG = 0 // reset the consecutive streak
+                    //adding values to stateflow
+                    consecutiveStreakFlow.value = user.consecStreakCG
+                }
+            }
         }
-        nameText.text = "The game was: $gameName"
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            consecutiveStreakFlow.collect { streakValue ->
+                // This block runs on the main thread whenever keyWordStreakFlow is updated.
+                consecutiveStreak.text = getString(R.string.consec_streak, streakValue)
+            }
+
+        }
+
+        nameText.text = getString(R.string.gameReveal, gameName)//"The game was: $gameName"
 
         coverUrl?.let {
             Glide.with(this)
