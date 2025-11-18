@@ -118,10 +118,7 @@ public async Task<IActionResult> CompareGame([FromBody] CompareRequest request)
     {
         result.Matches["ReleaseYear"] = "lower"; 
     }
-    else
-    {
-        result.Matches["ReleaseYear"] = "none";
-    }
+    
 
 
     result.Matches["Genre"] = actualGame.Genre.Equals(guessedGame.Genre, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";

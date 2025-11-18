@@ -207,15 +207,15 @@ class CompareGameFragment : Fragment() {
 
             if (key.equals("releaseYear", ignoreCase = true)) {
                 when (status.lowercase()) {
-                    "up" -> {
+                    "higher" -> {
                         icon.setImageResource(R.drawable.ic_arrow_up)
                         icon.visibility = View.VISIBLE
                     }
-                    "down" -> {
+                    "lower" -> {
                         icon.setImageResource(R.drawable.ic_arrow_down)
                         icon.visibility = View.VISIBLE
                     }
-                    "equal" -> {
+                    "exact" -> {
                         icon.setImageResource(R.drawable.ic_equal)
                         icon.visibility = View.VISIBLE
                     }
