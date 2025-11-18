@@ -63,7 +63,7 @@
     <string name="welcome_username_placeholder">User</string>
     <string name="welcome_description">Welcome to Game Guesser! Test your skills by guessing games.</string>
     <string name="key_words_title">Key Words</string>
-    <string name="key_words_streak">Streak: </string>
+    <string name="key_words_streak">Streak: %d</string>
     <string name="play_button">Play</string>
     <string name="compare_game_title" translatable="false">Compare Games</string>
 
