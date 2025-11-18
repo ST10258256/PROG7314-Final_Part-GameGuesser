@@ -65,20 +65,7 @@ class HomeFragment : Fragment() {
         // Check streaks when the user reaches the home screen
         checkAllStreaksOnAppLoad()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            keyWordStreakFlow.collect { streakValue ->
-                // This block runs on the main thread whenever keyWordStreakFlow is updated.
-                binding.keyWordsStreak.text = getString(R.string.key_words_streak, streakValue)
-            }
 
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            compareGameStreakFlow.collect { streakValue ->
-                // This block runs on the main thread whenever keyWordStreakFlow is updated.
-                binding.compareGame.text = getString(R.string.key_words_streak, streakValue)
-            }
-
-        }
 
         // Navigate to Key Game (active)
         binding.playKeyWordsButton.setOnClickListener {
@@ -95,6 +82,27 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // This will be called every time the fragment becomes the active screen.
+        checkAllStreaksOnAppLoad()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            keyWordStreakFlow.collect { streakValue ->
+                // This block runs on the main thread whenever keyWordStreakFlow is updated.
+                binding.keyWordsStreak.text = getString(R.string.key_words_streak, streakValue)
+            }
+
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            compareGameStreakFlow.collect { streakValue ->
+                // This block runs on the main thread whenever keyWordStreakFlow is updated.
+                binding.compareGame.text = getString(R.string.key_words_streak, streakValue)
+            }
+
+        }
     }
 
     private fun checkAllStreaksOnAppLoad() {
@@ -123,6 +131,7 @@ class HomeFragment : Fragment() {
             //adding values to stateflow
             keyWordStreakFlow.value = user.streakKW
             compareGameStreakFlow.value = user.streakCG
+
 
 
 
