@@ -74,7 +74,7 @@
                 android:id="@+id/keyWordsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Key Words"
+                android:text="@string/key_words_title"
                 android:textColor="#2E2157"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
@@ -83,7 +83,6 @@
                 android:id="@+id/keyWordsStreak"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Streak: "
                 android:textColor="#FF9800"
                 android:textSize="18sp"
                 android:layout_marginTop="8dp"/>
@@ -124,13 +123,13 @@
                 android:id="@+id/bonusGameTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/key_words_title"
+                android:text="@string/compare_game_title"
                 android:textColor="#2E2157"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
             <TextView
-                android:id="@+id/bonusGameStreak"
+                android:id="@+id/compareGame"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/key_words_streak"

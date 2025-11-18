@@ -4,15 +4,26 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.gameguesser.Class.User
 import com.example.gameguesser.DAOs.UserDao
 
-@Database(entities = [User::class], version = 1, exportSchema = false)
+@Database(entities = [User::class], version = 2)
 abstract class UserDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
 
     companion object {
+        /**
+         * Migration from version 1 to 2: Adds the `lastPlayedCG` column to the user_table.
+         */
+        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE user_table ADD COLUMN lastPlayedCG INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         @Volatile
         private var INSTANCE: UserDatabase? = null
 
@@ -22,7 +33,9 @@ abstract class UserDatabase : RoomDatabase() {
                     context.applicationContext,
                     UserDatabase::class.java,
                     "user_database"
-                ).build()
+                )
+                    .addMigrations(MIGRATION_1_2) // Tell Room to use the migration
+                    .build()
                 INSTANCE = instance
                 instance
             }
