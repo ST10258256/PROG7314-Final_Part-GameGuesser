@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.gameguesser.Class.User
 import com.example.gameguesser.DAOs.UserDao
 
-@Database(entities = [User::class], version = 2)
+@Database(entities = [User::class], version = 2, exportSchema = false)
 abstract class UserDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
