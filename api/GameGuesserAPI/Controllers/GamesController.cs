@@ -106,9 +106,27 @@ public async Task<IActionResult> CompareGame([FromBody] CompareRequest request)
             return "none";  
     }
 
+    if (actualGame.ReleaseYear == guessedGame.ReleaseYear)
+    {
+        result.Matches["ReleaseYear"] = "exact";
+    }
+    else if (guessedGame.ReleaseYear > actualGame.ReleaseYear)
+    {
+        result.Matches["ReleaseYear"] = "higher";
+    }
+    else if (guessedGame.ReleaseYear < actualGame.ReleaseYear)
+    {
+        result.Matches["ReleaseYear"] = "lower"; 
+    }
+    else
+    {
+        result.Matches["ReleaseYear"] = "none";
+    }
+
+
     result.Matches["Genre"] = actualGame.Genre.Equals(guessedGame.Genre, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
     result.Matches["Platforms"] = CompareLists(actualGame.Platforms, guessedGame.Platforms);
-    result.Matches["ReleaseYear"] = actualGame.ReleaseYear == guessedGame.ReleaseYear ? "exact" : "none";
+   // result.Matches["ReleaseYear"] = actualGame.ReleaseYear == guessedGame.ReleaseYear ? "exact" : "none";
     result.Matches["Developer"] = actualGame.Developer.Equals(guessedGame.Developer, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
     result.Matches["Publisher"] = actualGame.Publisher.Equals(guessedGame.Publisher, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
     result.Matches["Budget"] = actualGame.Budget.Equals(guessedGame.Budget, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";

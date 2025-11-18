@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/matchChip"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingLeft="12dp"
-    android:paddingRight="12dp"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp"
-    android:textSize="14sp"
-    android:textColor="@android:color/white"
+    android:orientation="horizontal"
+    android:padding="6dp"
     android:background="@drawable/chip_background"
-    android:layout_marginRight="8dp"
-    android:layout_marginBottom="6dp"/>
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/matchChip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:paddingEnd="4dp" />
+
+    <ImageView
+        android:id="@+id/matchIcon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:visibility="gone"
+        app:tint="@android:color/white" />
+</LinearLayout>

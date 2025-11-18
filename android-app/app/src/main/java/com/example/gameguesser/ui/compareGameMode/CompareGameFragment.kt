@@ -190,22 +190,41 @@ class CompareGameFragment : Fragment() {
         for ((key, status) in matches) {
 
             val chipView = layoutInflater.inflate(R.layout.item_match_chip, null)
-            val chip = chipView.findViewById<TextView>(R.id.matchChip)
+            val label = chipView.findViewById<TextView>(R.id.matchChip)
+            val icon = chipView.findViewById<ImageView>(R.id.matchIcon)
 
-            chip.text = key
+            label.text = key.replaceFirstChar { it.uppercase() }
 
+            // Default color logic (green, orange, red)
             val color = when (status.lowercase()) {
-                "exact" -> R.color.green
+                "exact", "equal" -> R.color.green
                 "partial" -> R.color.orange
                 else -> R.color.red
             }
 
-            chip.backgroundTintList = ColorStateList.valueOf(
-                resources.getColor(color, null)
-            )
+            chipView.backgroundTintList =
+                ColorStateList.valueOf(resources.getColor(color, null))
+
+            if (key.equals("releaseYear", ignoreCase = true)) {
+                when (status.lowercase()) {
+                    "up" -> {
+                        icon.setImageResource(R.drawable.ic_arrow_up)
+                        icon.visibility = View.VISIBLE
+                    }
+                    "down" -> {
+                        icon.setImageResource(R.drawable.ic_arrow_down)
+                        icon.visibility = View.VISIBLE
+                    }
+                    "equal" -> {
+                        icon.setImageResource(R.drawable.ic_equal)
+                        icon.visibility = View.VISIBLE
+                    }
+                }
+            }
 
             chipContainer.addView(chipView)
         }
+
 
         comparisonContainer.addView(card, 0)
     }
