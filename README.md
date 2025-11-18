@@ -10,9 +10,9 @@ This project has been developed for the course PROG7314
 ## Features 
 The features for this project include 
 - Two Game modes where the user will guess the game's name from the given criteria that they give you
-- and a streak fetaure to incetivise play
+- There is a streak fetaure to incetivise play and the user will have to come and play a game everyday for it to work
 -  A Enclclopedia where it will list all the games from the database, and the user will be able to filter the games to met some criteria
-  - A chatbot that will allow the user to query it.
+- A chatbot that will allow the user to query it.
 - There is a settings page where the user can change the language for the app, the user details, log out
 
 ---
@@ -48,6 +48,8 @@ Now that it is open in android studio it should look somehting like this
 You will have to build Gradle first then Click the run button at the top to start the emulator of the app.
 
 Your app should work perfetly fine, log in with SSO and then since the API is running on render it should be able to make the API requests to the database that is running online. You are able to change the backend and make the app take requests from there instead
+
+There is also a local backend of the database so once you launch the app once online it should load all the games on the local, so if you are disconnected from the internet you would still be able to play our game.
 
 If there is an issue with the api you will have to launch the backend api locally with 
 
