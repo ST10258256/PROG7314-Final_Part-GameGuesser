@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.postDelayed
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.gameguesser.Class.User
@@ -26,6 +25,7 @@ import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
 
@@ -119,16 +119,27 @@ class LoginActivity : AppCompatActivity() {
                     putString("userId", account.id)
                     apply()
                 }
-
-                val user = User(
-                    userId = account.id ?: "",
-                    userName = account.displayName ?: "Player",
-                    streak = 0
-                )
-
+                // also saves them to room
                 val db = UserDatabase.getDatabase(this)
                 CoroutineScope(Dispatchers.IO).launch {
-                    db.userDao().addUser(user)
+                    val userId = account.id ?: ""
+                    var user = db.userDao().getUser(userId)
+
+                    if (user == null) {
+                        user = User(
+                            userId = userId,
+                            userName = account.displayName ?: "Player",
+                            streakKW = 0,
+                            streakCG = 0
+                        )
+                        db.userDao().addUser(user)
+                    } else {
+                        // Optional: Update username if it has changed
+                        if (user.userName != account.displayName) {
+                            user.userName = account.displayName ?: "Player"
+                            db.userDao().updateUser(user)
+                        }
+                    }
                 }
 
                 Toast.makeText(this, "Welcome ${account.displayName}", Toast.LENGTH_SHORT).show()

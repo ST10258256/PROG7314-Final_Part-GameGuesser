@@ -46,12 +46,18 @@
     <string name="guess_input_hint">Guess the game</string>
     <string name="guess_button">Guess</string>
 
+    <!-- Game strings-->
+    <string name="failure">Better luck next time</string>
+    <string name="congrats">Congratulations</string>
+    <string name="gameReveal">The game was: </string>
+
     <!-- home -->
     <string name="welcome_title">Hi, Welcome Back</string>
     <string name="welcome_username_placeholder">User</string>
-    <string name="welcome_description">Welcome to Game Guesser! Test your skills by guessing games.</string>
+    <string name="welcome_description">Welcome to Game Guesser! Test your skills by guessing games.</string> //
     <string name="key_words_title">Key Words</string>
-    <string name="key_words_streak">Streak: </string>
+    <string name="compare_game_title">Compare Game</string>
+    <string name="key_words_streak">Streak: %d</string>
     <string name="play_button">Play</string>
 
     <!-- help -->
@@ -141,4 +147,6 @@
     <string name="pick_cover_image">Tap to pick cover image</string>
     <string name="save_game">Save Game</string>
 
+
+    <!-- <string name="key_words_streak">Key Words Streak: %d</string> -->
 </resources>
