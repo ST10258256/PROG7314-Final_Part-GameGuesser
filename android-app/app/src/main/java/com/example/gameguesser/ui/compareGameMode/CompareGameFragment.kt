@@ -179,37 +179,37 @@ class CompareGameFragment : Fragment() {
     }
 
     // UI Updating
-    private fun updateComparisonUI(matches: Map<String, Boolean>) {
+    private fun updateComparisonUI(matches: Map<String, String>) {
 
         val card = layoutInflater.inflate(R.layout.item_guess_card, null)
         val guessTitle = card.findViewById<TextView>(R.id.guessTitle)
         val chipContainer = card.findViewById<FlexboxLayout>(R.id.chipContainer)
 
-        // Show guess text
         guessTitle.text = "You guessed: ${guessInput.text}"
 
-        for ((key, matched) in matches) {
+        for ((key, status) in matches) {
+
             val chipView = layoutInflater.inflate(R.layout.item_match_chip, null)
             val chip = chipView.findViewById<TextView>(R.id.matchChip)
 
             chip.text = key
 
-            // color the box
-            if (matched) {
-                chip.backgroundTintList = ColorStateList.valueOf(
-                    resources.getColor(R.color.green, null)
-                )
-            } else {
-                chip.backgroundTintList = ColorStateList.valueOf(
-                    resources.getColor(R.color.red, null)
-                )
+            val color = when (status.lowercase()) {
+                "exact" -> R.color.green
+                "partial" -> R.color.orange
+                else -> R.color.red
             }
+
+            chip.backgroundTintList = ColorStateList.valueOf(
+                resources.getColor(color, null)
+            )
 
             chipContainer.addView(chipView)
         }
 
         comparisonContainer.addView(card, 0)
     }
+
 
 
 
@@ -258,11 +258,10 @@ class CompareGameFragment : Fragment() {
         val playAgainBtn = dialogView.findViewById<Button>(R.id.playAgainButton)
         val mainMenuBtn = dialogView.findViewById<Button>(R.id.mainMenuButton)
 
-        //Old code = titleText.text = if (won)  "Congratulations" else "Better luck next time"
         if (won) {
             titleText.text = getString(R.string.congrats)
             lifecycleScope.launch(Dispatchers.IO) {
-                val userId = getLoggedInUserId() // You need a function to get the current user's ID
+                val userId = getLoggedInUserId()
                 if (userId == null) return@launch
 
                 val user = userDao.getUser(userId)

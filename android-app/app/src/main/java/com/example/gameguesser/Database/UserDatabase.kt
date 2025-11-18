@@ -11,7 +11,7 @@ import com.example.gameguesser.DAOs.LocalUserDao
 import com.example.gameguesser.Class.LocalUser
 import com.example.gameguesser.DAOs.UserDao
 
-@Database(entities = [User::class, LocalUser::class], version = 2, exportSchema = false)
+@Database(entities = [User::class, LocalUser::class], version = 3, exportSchema = false)
 abstract class UserDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -50,6 +50,7 @@ abstract class UserDatabase : RoomDatabase() {
                 )
                     // Tell Room to use the single, consolidated migration
                     .addMigrations(MIGRATION_1_2)
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
