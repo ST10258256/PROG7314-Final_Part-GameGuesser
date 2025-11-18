@@ -154,24 +154,26 @@ class CompareGameFragment : Fragment() {
     }
 
     private fun submitGuess(gameId: String, guess: String, guessedYear: Int? = null) {
-        val request = CompareRequest(gameId, guess, guessedYear)
-        RetrofitClient.api.compareGame(request)
-            .enqueue(object : Callback<ComparisonResponse> {
-                override fun onResponse(
-                    call: Call<ComparisonResponse>,
-                    response: Response<ComparisonResponse>
-                ) {
-                    val result = response.body() ?: return
-                    Log.d("COMPARE_DEBUG", "Comparison result: $result")
-                    updateComparisonUI(result.matches)
-                    if (result.correct) showEndGameDialog(true, currentGameName ?: "Unknown", currentGameCover)
-                    else loseHeart()
-                }
+        val guess = guessInput.text.toString()
+        if (guess.isBlank()) return
 
-                override fun onFailure(call: Call<ComparisonResponse>, t: Throwable) {
-                    Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
+        val request = CompareRequest(currentGameId!!, guess)
+        RetrofitClient.api.compareGame(request).enqueue(object : Callback<ComparisonResponse> {
+            override fun onResponse(
+                call: Call<ComparisonResponse>,
+                response: Response<ComparisonResponse>
+            ) {
+                val result = response.body() ?: return
+                updateComparisonUI(result.matches)
+                if (result.correct) showEndGameDialog(true, currentGameName ?: "Unknown", currentGameCover)
+                else loseHeart()
+            }
+
+            override fun onFailure(call: Call<ComparisonResponse>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+
     }
 
 
@@ -229,8 +231,6 @@ class CompareGameFragment : Fragment() {
 
         comparisonContainer.addView(card, 0)
     }
-
-
 
 
     private fun loseHeart() {

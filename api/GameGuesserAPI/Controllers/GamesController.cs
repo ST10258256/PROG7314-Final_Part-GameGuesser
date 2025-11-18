@@ -81,65 +81,40 @@ public class GamesController : ControllerBase
 [HttpPost("compare")]
 public async Task<IActionResult> CompareGame([FromBody] CompareRequest request)
 {
-    // Fetch the actual game by ID
     var actualGame = await _gameService.GetGameByIdAsync(request.GameId);
+    var guessedGame = await _gameService.GetGameByNameAsync(request.GuessName);
+
     if (actualGame == null)
         return NotFound("Actual game not found");
 
-    // Fetch the guessed game by name
-    var guessedGame = await _gameService.GetGameByNameAsync(request.GuessName);
-    if (guessedGame == null)
-        return NotFound("Guessed game not found");
-
-    // Initialize the result
     var result = new ComparisonResult
     {
-        Correct = actualGame.Name.Equals(guessedGame.Name, StringComparison.OrdinalIgnoreCase),
+        Correct = guessedGame != null && actualGame.Name.Equals(guessedGame.Name, StringComparison.OrdinalIgnoreCase),
         Matches = new Dictionary<string, string>()
     };
 
-    // Helper method to compare string lists
-    string CompareLists(List<string> actual, List<string> guess)
-    {
-        var actualLower = actual.Select(a => a.ToLower()).ToList();
-        var guessLower = guess.Select(g => g.ToLower()).ToList();
-
-        if (guessLower.All(actualLower.Contains) && actualLower.All(guessLower.Contains))
-            return "exact";
-        else if (guessLower.Any(actualLower.Contains))
-            return "partial";
-        else
-            return "none";
-    }
-
     // Release Year comparison
-    if (request.GuessedReleaseYear.HasValue)
+    if (guessedGame != null)
     {
-        int guessedYear = request.GuessedReleaseYear.Value;
-
-        if (guessedYear == actualGame.ReleaseYear)
+        if (guessedGame.ReleaseYear == actualGame.ReleaseYear)
             result.Matches["ReleaseYear"] = "exact";
-        else if (guessedYear > actualGame.ReleaseYear)
+        else if (guessedGame.ReleaseYear > actualGame.ReleaseYear)
             result.Matches["ReleaseYear"] = "higher";
         else
             result.Matches["ReleaseYear"] = "lower";
     }
     else
     {
-        result.Matches["ReleaseYear"] = "none"; // No year info provided
+        result.Matches["ReleaseYear"] = "none";
     }
 
-    // Other field comparisons
-    result.Matches["Genre"] = actualGame.Genre.Equals(guessedGame.Genre, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
-    result.Matches["Platforms"] = CompareLists(actualGame.Platforms, guessedGame.Platforms);
-    result.Matches["Developer"] = actualGame.Developer.Equals(guessedGame.Developer, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
-    result.Matches["Publisher"] = actualGame.Publisher.Equals(guessedGame.Publisher, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
-    result.Matches["Budget"] = actualGame.Budget.Equals(guessedGame.Budget, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
-    result.Matches["Saga"] = actualGame.Saga.Equals(guessedGame.Saga, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
-    result.Matches["POV"] = actualGame.POV.Equals(guessedGame.POV, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    // Other simple comparisons
+    result.Matches["Genre"] = actualGame.Genre.Equals(request.GuessName, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+  
 
     return Ok(result);
 }
+
 
 
 
