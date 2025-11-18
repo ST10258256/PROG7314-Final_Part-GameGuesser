@@ -1,3 +1,4 @@
+//import androidx.compose.foundation.layout.exclude
 import java.util.Properties
 import java.io.FileInputStream
 import java.net.ServerSocket
@@ -73,6 +74,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    kapt {
+        correctErrorTypes = true
+        javacOptions {
+            option("-source", "11")
+            option("-target", "11")
+        }
+    }
 }
 
 // --------------------------
@@ -115,25 +124,17 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.activity)
 
-    // Room (correct Android dependencies)
+    // Room
     implementation("androidx.room:room-runtime:2.6.1")
+    // REMOVED: implementation("androidx.room:room-compiler:2.6.1") -> This is not needed with kapt
     kapt("androidx.room:room-compiler:2.6.1")       // annotation processor
     implementation("androidx.room:room-ktx:2.6.1")  // coroutines support
+
+    // Retrofit, OkHttp, and Logging
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
@@ -145,9 +146,18 @@ dependencies {
 
     // SSO
     implementation("com.google.android.gms:play-services-auth:21.4.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
-    //Flex wrap
+    // Flexbox
     implementation("com.google.android.flexbox:flexbox:3.0.0")
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    // FIX: Exclude the old annotations module that conflicts with org.jetbrains:annotations
+//    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0")) {
+//        exclude(group = "com.intellij", module = "annotations")
+//    }
 }
 
