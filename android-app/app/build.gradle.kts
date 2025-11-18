@@ -74,6 +74,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    kapt {
+        correctErrorTypes = true
+        javacOptions {
+            option("-source", "11")
+            option("-target", "11")
+        }
+    }
 }
 
 // --------------------------
