@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.gameguesser.databinding.FragmentLanguageBinding
@@ -36,31 +37,37 @@ class LanguagesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Load saved language and pre-check the corresponding checkbox
         val prefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
         val savedLangCode = prefs.getString("app_language", "en")
-        when (savedLangCode) {
-            "en" -> binding.cbEnglish.isChecked = true
-            "af" -> binding.cbAfrikaans.isChecked = true
-            "zu" -> binding.cbZulu.isChecked = true
-            "fr" -> binding.cbFrench.isChecked = true
-            "es" -> binding.cbSpanish.isChecked = true
-            "de" -> binding.cbGerman.isChecked = true
+
+        // Map checkbox references to language codes
+        val checkBoxes = mapOf(
+            binding.cbEnglish to "en",
+            binding.cbAfrikaans to "af",
+            binding.cbZulu to "zu",
+            binding.cbFrench to "fr",
+            binding.cbSpanish to "es",
+            binding.cbGerman to "de"
+        )
+
+        // Pre-check saved language
+        checkBoxes.forEach { (cb, code) ->
+            cb.isChecked = savedLangCode == code
+        }
+
+        // Ensure only one checkbox can be selected at a time
+        checkBoxes.keys.forEach { cb ->
+            cb.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
+                if (isChecked) {
+                    checkBoxes.keys.filter { it != buttonView }.forEach { it.isChecked = false }
+                }
+            }
         }
 
         binding.btnSaveLanguages.setOnClickListener {
-            // Only allow one language selection
-            val selectedLanguage = when {
-                binding.cbEnglish.isChecked -> "English"
-                binding.cbAfrikaans.isChecked -> "Afrikaans"
-                binding.cbZulu.isChecked -> "Zulu"
-                binding.cbFrench.isChecked -> "French"
-                binding.cbSpanish.isChecked -> "Spanish"
-                binding.cbGerman.isChecked -> "German"
-                else -> "English" // default
-            }
-
-            val selectedCode = languageMap[selectedLanguage] ?: "en"
+            // Find the selected language
+            val selectedCode = checkBoxes.entries.firstOrNull { it.key.isChecked }?.value ?: "en"
+            val selectedLanguage = languageMap.entries.first { it.value == selectedCode }.key
 
             // Save the language to SharedPreferences
             prefs.edit().putString("app_language", selectedCode).apply()
