@@ -5,7 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#1A153A">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,13 +20,23 @@
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:layout_gravity="center"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginTop="4dp" />
+
+        <!-- SearchView added -->
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchViewGames"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:queryHint="Search games..."
+            android:iconifiedByDefault="false"
+            android:layout_marginBottom="12dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewGames"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:clipToPadding="false"
             android:paddingBottom="100dp" />
 
@@ -46,6 +55,5 @@
         android:elevation="8dp"
         app:maxImageSize="36dp"
         android:layout_gravity="bottom|end" />
-
 
 </FrameLayout>
