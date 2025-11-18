@@ -139,7 +139,7 @@ class KeyGameFragment : Fragment() {
                             lastHeart.visibility = View.INVISIBLE
                         }
                         addChip(result.hint ?: "No hint")
-                        resultText.text = "Wrong"
+                        resultText.text = getString(R.string.wrong)
                         if (hearts.isEmpty()) {
                             showEndGameDialog(false, currentGameName ?: "Unknown", currentGameCover)
                             guessButton.isEnabled = false
@@ -149,7 +149,7 @@ class KeyGameFragment : Fragment() {
                         }
                     }
                 } else {
-                    resultText.text = "Error: Invalid response"
+                    resultText.text = getString(R.string.invalid_response)
                 }
             }
 
@@ -186,10 +186,11 @@ class KeyGameFragment : Fragment() {
         val titleText = dialogView.findViewById<TextView>(R.id.dialogTitle)
         val playAgainBtn = dialogView.findViewById<Button>(R.id.playAgainButton)
         val mainMenuBtn = dialogView.findViewById<Button>(R.id.mainMenuButton)
+        val nameText = dialogView.findViewById<TextView>(R.id.gameName)
         val consecutiveStreak = dialogView.findViewById<TextView>(R.id.consecutiveStreak)
 
         if (won) {
-            titleText.text = "Congratulations"
+            titleText.text = getString(R.string.congrats)
             lifecycleScope.launch(Dispatchers.IO) {
                 val userId = getLoggedInUserId() // You need a function to get the current user's ID
                 if (userId == null) return@launch
@@ -219,9 +220,10 @@ class KeyGameFragment : Fragment() {
                         // e.g., Toast.makeText(context, "Streak: ${user.streakCG}", Toast.LENGTH_SHORT).show()
                     }
                 }
+
             }
         } else {
-            titleText.text = "Better luck next time"
+            titleText.text = getString(R.string.failure)
             lifecycleScope.launch(Dispatchers.IO) {
                 val userId = getLoggedInUserId() // You need a function to get the current user's ID
                 if (userId == null) return@launch
@@ -233,6 +235,8 @@ class KeyGameFragment : Fragment() {
                 }
             }
         }
+
+        nameText.text = getString(R.string.gameReveal, gameName)//"The game was: $gameName"
 
         coverUrl?.let {
             Glide.with(this)

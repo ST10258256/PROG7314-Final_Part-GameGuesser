@@ -45,12 +45,15 @@
     <string name="guess_left">Guess left</string>
     <string name="guess_input_hint">Guess the game</string>
     <string name="guess_button">Guess</string>
+    <string name="wrong">Wrong</string>
+    <string name="invalid_response">Error: Invalid response</string>
 
     <!-- Game strings-->
     <string name="failure">Better luck next time</string>
     <string name="congrats">Congratulations</string>
-    <string name="gameReveal">The game was: </string>
+    <string name="gameReveal">The game was: %s</string>
     <string name="consec_streak">Consecutive Streak: %d</string>
+    <string name="user_guess">You guessed: %s</string>
 
     <!-- home -->
     <string name="welcome_title">Hi, Welcome Back</string>

@@ -185,7 +185,7 @@ class CompareGameFragment : Fragment() {
         val guessTitle = card.findViewById<TextView>(R.id.guessTitle)
         val chipContainer = card.findViewById<FlexboxLayout>(R.id.chipContainer)
 
-        guessTitle.text = "You guessed: ${guessInput.text}"
+        guessTitle.text = getString(R.string.user_guess, guessInput.text) //"You guessed: ${guessInput.text}"
 
         for ((key, status) in matches) {
 
@@ -304,7 +304,8 @@ class CompareGameFragment : Fragment() {
                 }
             }
         }
-        nameText.text = "The game was: $gameName"
+
+        nameText.text = getString(R.string.gameReveal, gameName)//"The game was: $gameName"
 
         coverUrl?.let {
             Glide.with(this)
