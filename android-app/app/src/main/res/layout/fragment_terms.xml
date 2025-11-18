@@ -51,6 +51,21 @@
                 android:letterSpacing="0.02"
                 android:scrollbars="vertical" />
 
+            <!-- Privacy Policy Link -->
+            <TextView
+                android:id="@+id/privacyLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Privacy Policy"
+                android:textColor="#C5BEDF"
+                android:textSize="14sp"
+                android:layout_marginTop="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:contentDescription="Privacy Policy Link" />
+
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
