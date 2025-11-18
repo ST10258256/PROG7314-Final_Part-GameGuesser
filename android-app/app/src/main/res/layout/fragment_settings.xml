@@ -45,7 +45,7 @@
             android:scaleType="centerCrop"
             android:background="@drawable/circle_background"
             android:clipToOutline="true"
-            android:contentDescription="User Profile" />
+            android:contentDescription="@string/content_user_profile" />
 
 
         <!-- User’s name (display only) -->

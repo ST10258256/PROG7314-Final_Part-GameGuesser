@@ -90,21 +90,34 @@ public async Task<IActionResult> CompareGame([FromBody] CompareRequest request)
     var result = new ComparisonResult
     {
         Correct = actualGame.Name.Equals(guessedGame.Name, StringComparison.OrdinalIgnoreCase),
-        Matches = new Dictionary<string, bool>()
-        {
-            { "Genre", actualGame.Genre == guessedGame.Genre },
-            { "Platforms", actualGame.Platforms.SequenceEqual(guessedGame.Platforms) },
-            { "ReleaseYear", actualGame.ReleaseYear == guessedGame.ReleaseYear },
-            { "Developer", actualGame.Developer == guessedGame.Developer },
-            { "Publisher", actualGame.Publisher == guessedGame.Publisher },
-            { "Budget", actualGame.Budget == guessedGame.Budget },
-            { "Saga", actualGame.Saga == guessedGame.Saga },
-            { "POV", actualGame.POV == guessedGame.POV }
-        }
+        Matches = new Dictionary<string, string>()
     };
+
+    string CompareLists(List<string> actual, List<string> guess)
+    {
+        var actualLower = actual.Select(a => a.ToLower()).ToList();
+        var guessLower = guess.Select(g => g.ToLower()).ToList();
+
+        if (guessLower.All(actualLower.Contains) && actualLower.All(guessLower.Contains))
+            return "exact"; 
+        else if (guessLower.Any(actualLower.Contains))
+            return "partial"; 
+        else
+            return "none";  
+    }
+
+    result.Matches["Genre"] = actualGame.Genre.Equals(guessedGame.Genre, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    result.Matches["Platforms"] = CompareLists(actualGame.Platforms, guessedGame.Platforms);
+    result.Matches["ReleaseYear"] = actualGame.ReleaseYear == guessedGame.ReleaseYear ? "exact" : "none";
+    result.Matches["Developer"] = actualGame.Developer.Equals(guessedGame.Developer, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    result.Matches["Publisher"] = actualGame.Publisher.Equals(guessedGame.Publisher, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    result.Matches["Budget"] = actualGame.Budget.Equals(guessedGame.Budget, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    result.Matches["Saga"] = actualGame.Saga.Equals(guessedGame.Saga, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
+    result.Matches["POV"] = actualGame.POV.Equals(guessedGame.POV, StringComparison.OrdinalIgnoreCase) ? "exact" : "none";
 
     return Ok(result);
 }
+
 
 
 }

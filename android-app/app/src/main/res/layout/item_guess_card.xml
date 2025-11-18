@@ -12,11 +12,12 @@
         android:id="@+id/guessTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Guess:"
+        android:text="Your guess"
         android:textStyle="bold"
         android:textColor="@android:color/white"
         android:textSize="15sp"
         android:layout_marginBottom="6dp"/>
+
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/chipContainer"

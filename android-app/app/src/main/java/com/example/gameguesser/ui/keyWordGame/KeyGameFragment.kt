@@ -1,6 +1,8 @@
 package com.example.gameguesser.ui.keyWordGame
 
 import android.app.AlertDialog
+import android.content.Context
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +10,11 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.example.gameguesser.DAOs.UserDao
 import com.example.gameguesser.Database.AppDatabase
+import com.example.gameguesser.Database.UserDatabase
 import com.example.gameguesser.R
 import com.example.gameguesser.data.RetrofitClient
 import com.example.gameguesser.repository.GameRepository
@@ -18,8 +23,12 @@ import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class KeyGameFragment : Fragment() {
+
+    private lateinit var userDb: UserDatabase
+    private lateinit var userDao: UserDao
 
     private var currentGameId: String? = null
     private var currentGameName: String? = null
@@ -43,6 +52,8 @@ class KeyGameFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_key_game, container, false)
 
+        userDb = UserDatabase.getDatabase(requireContext())
+        userDao = userDb.userDao()
         resultText = view.findViewById(R.id.resultText)
         guessInput = view.findViewById(R.id.guessInput)
         guessButton = view.findViewById(R.id.guessButton)
@@ -173,12 +184,41 @@ class KeyGameFragment : Fragment() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_end_game, null)
         val imageView = dialogView.findViewById<ImageView>(R.id.gameCoverImage)
         val titleText = dialogView.findViewById<TextView>(R.id.dialogTitle)
-        val nameText = dialogView.findViewById<TextView>(R.id.gameName)
         val playAgainBtn = dialogView.findViewById<Button>(R.id.playAgainButton)
         val mainMenuBtn = dialogView.findViewById<Button>(R.id.mainMenuButton)
 
-        titleText.text = if (won) "Congratulations!" else "Better luck next time"
-        nameText.text = "The game was: $gameName"
+        if (won) {
+            titleText.text = "Congratulations"
+            lifecycleScope.launch(Dispatchers.IO) {
+                val userId = getLoggedInUserId() // You need a function to get the current user's ID
+                if (userId == null) return@launch
+
+                val user = userDao.getUser(userId)
+                if (user != null) {
+                    // Check if the last win was on a different day
+                    if (!isToday(user.lastPlayedKW)) {
+                        user.streakKW += 1 // Increment the streak
+                    }
+                    // Update the best streak if the current one is higher
+                    if (user.streakKW > user.bestStreakKW) {
+                        user.bestStreakKW = user.streakKW
+                    }
+
+                    // Update the last played date to now
+                    user.lastPlayedKW = System.currentTimeMillis()
+
+                    // Save the updated user back to the database
+                    userDao.updateUser(user)
+
+                    // You can update the UI on the main thread
+                    withContext(Dispatchers.Main) {
+                        // e.g., Toast.makeText(context, "Streak: ${user.streakCG}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } else {
+            titleText.text = "Better luck next time"
+        }
 
         coverUrl?.let {
             Glide.with(this)
@@ -210,5 +250,25 @@ class KeyGameFragment : Fragment() {
         guessInput.text.clear()
         resultText.text = ""
         fetchRandomGame()
+    }
+
+    //Matthew code down here
+    // Helper function to check if a timestamp is from today
+    private fun isToday(timestamp: Long): Boolean {
+        if (timestamp == 0L) return false
+        val lastPlayedCal = Calendar.getInstance()
+        lastPlayedCal.timeInMillis = timestamp
+
+        val todayCal = Calendar.getInstance()
+
+        return lastPlayedCal.get(Calendar.YEAR) == todayCal.get(Calendar.YEAR) &&
+                lastPlayedCal.get(Calendar.DAY_OF_YEAR) == todayCal.get(Calendar.DAY_OF_YEAR)
+    }
+
+
+    // Helper function to get the user ID (you might get this from SharedPreferences)
+    private fun getLoggedInUserId(): String? {
+        val prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        return prefs.getString("userId", null)
     }
 }
