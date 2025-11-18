@@ -46,6 +46,13 @@
     <string name="guess_input_hint">Guess the game</string>
     <string name="guess_button">Guess</string>
 
+    <!-- login -->
+    <string name="game_logo">Game Logo</string>
+    <string name="welcome_text">
+    Think you know your games? Guess, strategise, and prove just how deep your knowledge runs in GameGuesser!
+    Brought to you by Group 14.
+    </string>
+
     <!-- home -->
     <string name="welcome_title">Hi, Welcome Back</string>
     <string name="welcome_username_placeholder">User</string>
@@ -92,6 +99,11 @@
     <string name="delete_explanation">Deleting your profile will permanently remove all your personal data and game progress. This action cannot be undone.</string>
     <string name="delete_my_account">Delete my account</string>
 
+    <!-- dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+
+    <!-- Your guess -->
+    <string name="your_guess">Your Guess:</string>
 
     <!-- chatbot -->
     <string name="type_a_message">Type a message</string>
@@ -119,7 +131,6 @@
     <string name="budget_label">Budget: </string>
     <string name="saga_label">Saga: </string>
     <string name="pov_label">POV: </string>
-
 
     <!-- add game -->
     <string name="add_game">Add Game</string>

@@ -1,18 +1,29 @@
 package com.example.gameguesser.ui.settings
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.gameguesser.databinding.FragmentLanguageBinding
+import java.util.Locale
 
 class LanguagesFragment : Fragment() {
 
     private var _binding: FragmentLanguageBinding? = null
     private val binding get() = _binding!!
+
+    // Map checkbox names to Android locale codes
+    private val languageMap = mapOf(
+        "English" to "en",
+        "Afrikaans" to "af",
+        "Zulu" to "zu",
+        "French" to "fr",
+        "Spanish" to "es",
+        "German" to "de"
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,29 +36,60 @@ class LanguagesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        // Load saved language and pre-check the corresponding checkbox
+        val prefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val savedLangCode = prefs.getString("app_language", "en")
+        when (savedLangCode) {
+            "en" -> binding.cbEnglish.isChecked = true
+            "af" -> binding.cbAfrikaans.isChecked = true
+            "zu" -> binding.cbZulu.isChecked = true
+            "fr" -> binding.cbFrench.isChecked = true
+            "es" -> binding.cbSpanish.isChecked = true
+            "de" -> binding.cbGerman.isChecked = true
+        }
 
         binding.btnSaveLanguages.setOnClickListener {
-            val selectedLanguages = mutableListOf<String>()
+            // Only allow one language selection
+            val selectedLanguage = when {
+                binding.cbEnglish.isChecked -> "English"
+                binding.cbAfrikaans.isChecked -> "Afrikaans"
+                binding.cbZulu.isChecked -> "Zulu"
+                binding.cbFrench.isChecked -> "French"
+                binding.cbSpanish.isChecked -> "Spanish"
+                binding.cbGerman.isChecked -> "German"
+                else -> "English" // default
+            }
 
-            if (binding.cbEnglish.isChecked) selectedLanguages.add("English")
-            if (binding.cbAfrikaans.isChecked) selectedLanguages.add("Afrikaans")
-            if (binding.cbSpanish.isChecked) selectedLanguages.add("Spanish")
-            if (binding.cbFrench.isChecked) selectedLanguages.add("French")
-            if (binding.cbZulu.isChecked) selectedLanguages.add("Zulu")
+            val selectedCode = languageMap[selectedLanguage] ?: "en"
+
+            // Save the language to SharedPreferences
+            prefs.edit().putString("app_language", selectedCode).apply()
+
+            // Apply the new locale
+            setAppLocale(requireContext(), selectedCode)
+
+            // Restart the activity to reflect the change
+            activity?.recreate()
 
             Toast.makeText(
                 requireContext(),
-                "Selected languages: ${selectedLanguages.joinToString(", ")}",
+                "Language switched to $selectedLanguage",
                 Toast.LENGTH_SHORT
             ).show()
-
-            // TO DO: Save the selected languages to user preferences
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // Helper function to change app locale
+    private fun setAppLocale(context: Context, languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
 }

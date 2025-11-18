@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">GameGuesser</string>
+    <string name="title_home">Ikhaya</string>
+    <string name="title_dashboard">Ibhodi Lezaziso</string>
+    <string name="title_notifications">Izaziso</string>
+    <string name="title_encyclopedia">Incwadi Yolwazi</string>
+    <string name="title_chatbot">I-Chatbot</string>
+    <string name="title_settings">Izilungiselelo</string>
+    <string name="server_client_id">631177841661-nqjjhb58th6a55vsadrqg3u9i3oouihn.apps.googleusercontent.com</string>
+
+    <string name="terms_content">
+        Siyakwamukela ku-Game Guesser!
+
+        Ngokusebenzisa lolu hlelo, uyavuma imigomo elandelayo:
+
+        1. Uhlelo luhlinzekwa njengoba lunjalo ngaphandle kwewaranti.
+        2. Inqubekela phambili yakho nedatha kungagcinwa nge-akhawunti yakho ye-Google.
+        3. Ukususa i-akhawunti yakho kuzosusa yonke inqubekela phambili ngokun永久.
+        4. Uhlelo luqoqa idatha encane edingekayo ukuze lusebenze kahle.
+        5. Uyavuma ukuthi ungayisebenzisi kabi noma uzame ukuhlela uhlelo.
+
+        Sicela udlale ngokuziphatha futhi ujabulele umdlalo!
+    </string>
+
+    <string name="profile">Iphrofayili</string>
+    <string name="delete_account">Susa I-Akhawunti</string>
+    <string name="help_and_faqs">Usizo Nezimpendulo</string>
+    <string name="terms_and_conditions">Imigomo Nemibandela</string>
+    <string name="languages">Izilimi</string>
+    <string name="logout">Phuma</string>
+
+    <string name="languages_title">Izilimi</string>
+    <string name="afrikaans">IsiBhunu</string>
+    <string name="english">IsiNgisi</string>
+    <string name="spanish">IsiSpanishi</string>
+    <string name="french">IsiFulentshi</string>
+    <string name="zulu">IsiZulu</string>
+    <string name="german">IsiJalimane</string>
+    <string name="save_selection">Londoloza Okukhethiwe</string>
+
+    <string name="guess_left">Usaliwe</string>
+    <string name="guess_input_hint">Thola umdlalo</string>
+    <string name="guess_button">Thola</string>
+
+    <string name="game_logo">Ilogo Yomdlalo</string>
+    <string name="welcome_text">
+        Ucabanga ukuthi uyazi imidlalo yakho? Thola, hlela, futhi ukhombise ukuthi ulwazi lwakho lujulile kangakanani ku-GameGuesser!
+        Kuhlelwe yiQembu 14.
+    </string>
+
+    <string name="welcome_title">Sawubona, Wamukelekile Emuva</string>
+    <string name="welcome_username_placeholder">Umsebenzisi</string>
+    <string name="welcome_description">Siyakwamukela ku-Game Guesser! Hlola amakhono akho ngokuthola imidlalo.</string>
+    <string name="key_words_title">Amagama Ayisihluthulelo</string>
+    <string name="key_words_streak">Imigqa: </string>
+    <string name="play_button">Dlala</string>
+
+    <string name="help_faq_title">Usizo Nezimpendulo</string>
+    <string name="faq_q1">Ngidlala kanjani i-Game Guesser?</string>
+    <string name="faq_a1">I-Game Guesser umdlalo wephazili lapho uthola imidlalo ngokusekelwe emiqondweni. Thola amaphuzu futhi uzame ukuthuthukisa imigqa yakho!</string>
+    <string name="faq_q2">Ngingasetha kabusha inqubekela phambili yami?</string>
+    <string name="faq_a2">Okwamanje, inqubekela phambili ayikwazi ukusethwa kabusha ngesandla. Ukuze usethe kabusha, kungadingeka ukuthi uphume bese ungene nge-akhawunti entsha.</string>
+    <string name="faq_q3">Ngingaxhumana kanjani nosizo?</string>
+    <string name="faq_a3">Ungaxhumana nosizo nge-imeyili ku-support@example.com. Sizophendula phakathi kwamahora angu-48.</string>
+    <string name="faq_q4">I-Game Guesser ibiza malini?</string>
+    <string name="faq_a4">Umdlalo wamahhala</string>
+    <string name="faq_q5">Ngingalwenza kanjani ngokwezifiso i-Game Guesser?</string>
+    <string name="faq_a5">Okwamanje, ukwenziwa ngokwezifiso kuncishisiwe, kukhona kuphela imodi emnyama</string>
+    <string name="faq_q6">Ngingasusa kanjani i-akhawunti yami?</string>
+    <string name="faq_a6">Sebenzisa isenzo sokususa i-akhawunti kuthebhu lezilungiselelo ngaphansi kokususa i-akhawunti</string>
+    <string name="faq_q7">Ngingayithola kanjani imina kamama noma ubaba?</string>
+    <string name="faq_a7">Lolu hlelo alukwazi ukukusiza ukuthola abazali abalahlekile.</string>
+
+    <string name="encyclopedia">Incwadi Yolwazi</string>
+    <string name="edit_my_profile">Hlela Iphrofayili Yami</string>
+    <string name="content_user_profile">Iphrofayili Yomsebenzisi</string>
+    <string name="guest">Isivakashi</string>
+    <string name="username_label">Igama Lomsebenzisi</string>
+    <string name="username_hint">Igama Lomsebenzisi</string>
+    <string name="phone_number_label">Inombolo Yocingo</string>
+    <string name="phone_number_hint">Inombolo Yocingo</string>
+    <string name="email_placeholder">user@email.com</string>
+    <string name="update_profile">Buyekeza Iphrofayili</string>
+
+    <string name="account_deletion">Ukususwa Kwe-Akhawunti</string>
+    <string name="delete_confirm_question">Uqinisekile ukuthi ufuna ukususa i-akhawunti yakho?</string>
+    <string name="delete_explanation">Ukususa iphrofayili yakho kuzosusa yonke idatha yakho yomuntu siqu kanye nenqubekela phambili yomdlalo unomphela. Lesi senzo asikwazi ukubuyiselwa emuva.</string>
+    <string name="delete_my_account">Susa I-Akhawunti Yami</string>
+
+    <string name="dashboard_title">Ibhodi Lezaziso</string>
+    <string name="your_guess">Ukulinganisa Kwakho:</string>
+
+    <string name="type_a_message">Thayipha umlayezo</string>
+    <string name="send">Thumela</string>
+
+    <string name="filter_games">Hlunga Imidlalo</string>
+    <string name="genre">Uhlobo</string>
+    <string name="platform">Ipulatifomu</string>
+    <string name="pov">POV</string>
+    <string name="apply_filters">Faka Izihlungi</string>
+
+    <string name="congratulations">Siyakuhalalisela!</string>
+    <string name="play_again">Dlala Futhi</string>
+    <string name="main_menu">Imenyu Eyinhloko</string>
+
+    <string name="game_cover">Ikhava Yomdlalo</string>
+    <string name="genre_label">Uhlobo: </string>
+    <string name="platforms_label">Amapulatifomu: </string>
+    <string name="release_year_label">Unyaka Wokukhishwa: </string>
+    <string name="developer_label">Umthuthukisi: </string>
+    <string name="publisher_label">Umshicileli: </string>
+    <string name="budget_label">Isabelomali: </string>
+    <string name="saga_label">Saga: </string>
+    <string name="pov_label">POV: </string>
+
+    <string name="add_game">Engeza Umdlalo</string>
+    <string name="game_name">Igama Lomdlalo</string>
+    <string name="select_platforms">Khetha Amapulatifomu</string>
+    <string name="no_platforms_selected">Akukho amapulatifomu akhethiwe</string>
+    <string name="release_year">Unyaka Wokukhishwa</string>
+    <string name="developer">Umthuthukisi</string>
+    <string name="publisher">Umshicileli</string>
+    <string name="description">Incazelo</string>
+    <string name="budget">Isabelomali</string>
+    <string name="saga">Saga</string>
+    <string name="clue_1">Isikhombi 1</string>
+    <string name="clue_2">Isikhombi 2</string>
+    <string name="clue_3">Isikhombi 3</string>
+    <string name="clue_4">Isikhombi 4</string>
+    <string name="clue_5">Isikhombi 5</string>
+    <string name="cover_image_preview">Isiboniso Sekhava</string>
+    <string name="pick_cover_image">Thepha ukuze ukhethe ikhava</string>
+    <string name="save_game">Londoloza Umdlalo</string>
+</resources>
