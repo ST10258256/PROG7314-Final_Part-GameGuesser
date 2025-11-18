@@ -19,5 +19,16 @@ class GameConverters {
         val listType = object : TypeToken<List<String>>() {}.type
         return gson.fromJson(value, listType)
     }
+
+    @TypeConverter
+    fun fromIdObject(idObject: IdObject?): String? {
+        return idObject?.let { Gson().toJson(it) }
+    }
+
+    @TypeConverter
+    fun toIdObject(value: String?): IdObject? {
+        return value?.let { Gson().fromJson(it, IdObject::class.java) }
+    }
+
 }
 

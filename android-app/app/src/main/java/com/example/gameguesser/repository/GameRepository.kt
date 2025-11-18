@@ -1,78 +1,169 @@
 package com.example.gameguesser.repository
 
+import android.content.Context
 import com.example.gameguesser.DAOs.GameDAO.GameDao
 import com.example.gameguesser.data.ApiService
 import com.example.gameguesser.data.Game
+import com.example.gameguesser.data.RetrofitClient
+import com.example.gameguesser.models.CompareRequest
+import com.example.gameguesser.models.ComparisonResponse
+import com.example.gameguesser.models.GuessResponse
+import com.example.gameguesser.models.RandomGameResponse
+import com.example.gameguesser.utils.NetworkUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GameRepository(
     private val dao: GameDao,
-    private val api: ApiService
+    private val api: ApiService,
+    private val context: Context
 ) {
 
-    // Fetch all games: online first, fallback to local
-    suspend fun getAllGames(): List<Game> {
-        return try {
-            val response = api.getAllGamesFull().execute()
-            val games = response.body() ?: emptyList()
-            if (games.isNotEmpty()) {
-                dao.clearGames()
-                dao.insertGames(games)  // update local cache
+    // Map API response → local Game
+    private fun mapRandomGameResponseToGame(resp: RandomGameResponse): Game {
+        return Game(
+            id = resp.id,
+            name = resp.name,
+            keywords = resp.keywords,
+            coverImageUrl = resp.coverImageUrl ?: "",
+            genre = "",
+            platforms = emptyList(),
+            releaseYear = 0,
+            developer = "",
+            publisher = "",
+            description = "",
+            budget = "",
+            saga = "",
+            pov = "",
+            clues = emptyList()
+        )
+    }
+
+
+
+    // Get random game (offline)
+    suspend fun getRandomGame(): Game? = withContext(Dispatchers.IO) {
+        try {
+            if (NetworkUtils.isOnline(context)) {
+                val response = api.getRandomGame().execute()
+                val apiGame = response.body()
+                val game = apiGame?.let { mapRandomGameResponseToGame(it) }
+
+                // Insert mapped Game into Room
+                game?.let { dao.insertGame(it) }
+
+                return@withContext game ?: dao.getAllGames().randomOrNull()
+            } else {
+                dao.getAllGames().randomOrNull()
             }
-            games.ifEmpty { dao.getAllGames() } // fallback if empty
-        } catch (e: Exception) {
-            dao.getAllGames() // offline fallback
+        } catch (_: Exception) {
+            dao.getAllGames().randomOrNull()
         }
     }
 
-    // Fetch single game by ID: online first, fallback to local
-    suspend fun getGameById(id: String): Game? {
-        return try {
-            val response = api.getGameById(id).execute()
-            val game = response.body()
-            game?.let { dao.insertGame(it) } // cache locally
-            game ?: dao.getGameById(id)
-        } catch (e: Exception) {
+
+    // Get game by ID (offline-safe)
+    suspend fun getGameByIdOfflineSafe(id: String): Game? = withContext(Dispatchers.IO) {
+        val localGame = dao.getGameById(id)
+        if (localGame != null) return@withContext localGame
+
+        if (NetworkUtils.isOnline(context)) {
+            try {
+                val response = api.getRandomGame().execute()
+                val apiGame = response.body()
+                val game = apiGame?.let { mapRandomGameResponseToGame(it) }
+                game?.let { dao.insertGame(it) }
+                return@withContext game ?: dao.getAllGames().randomOrNull()
+
+            } catch (_: Exception) {
+                return@withContext dao.getGameById(id)
+            }
+        } else {
             dao.getGameById(id)
         }
     }
 
-    // Optional: fetch a random game for Keyword game
-    suspend fun getRandomGame(): Game? {
+
+    // Sync all games from API
+    suspend fun syncFromApi() = withContext(Dispatchers.IO) {
+        if (!NetworkUtils.isOnline(context)) return@withContext
+        try {
+            val response = api.getRandomGame().execute()
+            val apiGame = response.body()
+            val game = apiGame?.let { mapRandomGameResponseToGame(it) }
+            game?.let { dao.insertGame(it) }
+        } catch (_: Exception) {}
+    }
+
+
+
+    // Other functions remain offline-safe
+    suspend fun getAllGames(): List<Game> = withContext(Dispatchers.IO) {
         val localGames = dao.getAllGames()
-        return if (localGames.isNotEmpty()) {
-            localGames.random()
-        } else {
-            try {
+        if (localGames.isNotEmpty()) return@withContext localGames
+
+        return@withContext try {
+            if (NetworkUtils.isOnline(context)) {
                 val response = api.getRandomGame().execute()
-                val game = response.body()?.let {
-                    Game(
-                        id = it.id,
-                        name = it.name,
-                        keywords = it.keywords
-                    )
-                }
+                val apiGame = response.body()
+                val game = apiGame?.let { mapRandomGameResponseToGame(it) }
                 game?.let { dao.insertGame(it) }
-                game
-            } catch (e: Exception) {
+
+                game?.let { listOf(it) } ?: emptyList()
+            } else {
+                emptyList()
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+
+
+    suspend fun findGamesByKeyword(keyword: String): List<Game> = withContext(Dispatchers.IO) {
+        val allGames = dao.getAllGames()
+        if (keyword.isBlank()) allGames
+        else allGames.filter { game ->
+            game.name.contains(keyword, ignoreCase = true) ||
+                    game.keywords.any { it.contains(keyword, ignoreCase = true) }
+        }
+    }
+
+
+    suspend fun submitGuess(gameId: String, guess: String): GuessResponse? =
+        withContext(Dispatchers.IO) {
+            if (!NetworkUtils.isOnline(context)) return@withContext null
+            try {
+                val response = api.submitGuess(gameId, guess).execute()
+                if (response.isSuccessful) response.body() else null
+            } catch (_: Exception) {
                 null
             }
         }
-    }
 
-    // Force sync local DB from API
-    suspend fun syncFromApi() {
-        try {
-            val response = api.getAllGamesFull().execute()
-            val games = response.body() ?: emptyList()
-            if (games.isNotEmpty()) {
-                dao.clearGames()
-                dao.insertGames(games)//will now clear any old stuff and replace it with the games yall added to mongo
+    suspend fun compareGame(request: CompareRequest): ComparisonResponse? {
+        return try {
+            if (NetworkUtils.isOnline(context)) {
+                val response = RetrofitClient.api.compareGame(request).execute()
+                response.body()
+            } else {
+                val game = getGameByIdOfflineSafe(request.gameId)
+                val matches = mutableMapOf<String, String>()
+                game?.keywords?.forEach { keyword ->
+                    matches[keyword] = if (keyword.equals(request.guessName, ignoreCase = true)) "exact" else "partial"
+                }
+                ComparisonResponse(
+                    correct = matches.any { it.value == "exact" },
+                    matches = matches
+                )
             }
         } catch (_: Exception) {
-
+            null
         }
     }
+
+
+
+
+
 }
-
-
-

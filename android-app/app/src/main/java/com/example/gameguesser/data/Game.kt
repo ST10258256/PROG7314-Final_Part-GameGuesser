@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName
 @TypeConverters(GameConverters::class)
 data class Game(
 
-    @Ignore
+  //  @Ignore
     @SerializedName("_id")
     var _id: IdObject? = null,  // holds the Mongo _id
 

@@ -1,22 +1,14 @@
 package com.example.gameguesser.ui.compareGameMode
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.res.ColorStateList
 import android.icu.util.Calendar
 import android.os.Bundle
-import android.text.format.DateUtils.isToday
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.content.Context
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.launch
+import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -29,21 +21,19 @@ import com.example.gameguesser.data.RetrofitClient
 import com.example.gameguesser.models.CompareRequest
 import com.example.gameguesser.models.ComparisonResponse
 import com.example.gameguesser.repository.GameRepository
+import com.example.gameguesser.utils.NetworkUtils
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class CompareGameFragment : Fragment() {
 
     private lateinit var userDb: UserDatabase
     private lateinit var userDao: UserDao
+    private lateinit var repository: GameRepository
 
     private var currentGameId: String? = null
     private var currentGameName: String? = null
@@ -67,11 +57,15 @@ class CompareGameFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_compare_game, container, false)
 
+        // Initialize DBs and repository
         userDb = UserDatabase.getDatabase(requireContext())
         userDao = userDb.userDao()
+        val gameDao = AppDatabase.getDatabase(requireContext()).gameDao()
+        repository = GameRepository(gameDao, RetrofitClient.api, requireContext())
+
+        // UI elements
         resultText = view.findViewById(R.id.resultText)
         guessInput = view.findViewById(R.id.guessInput)
         guessButton = view.findViewById(R.id.guessButton)
@@ -92,6 +86,7 @@ class CompareGameFragment : Fragment() {
         fetchAllGames()
         fetchRandomGame()
 
+        // AutoComplete filter
         guessInput.addTextChangedListener { editable ->
             val input = editable.toString()
             val filtered = allGames.filter { it.contains(input, ignoreCase = true) }
@@ -103,44 +98,50 @@ class CompareGameFragment : Fragment() {
 
         guessButton.setOnClickListener {
             val guess = guessInput.text.toString()
-
             if (guess.isBlank()) {
                 Toast.makeText(requireContext(), "Enter a guess", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            currentGameId?.let { id -> submitGuess(id, guess) }
+            currentGameId?.let { submitGuess(it, guess) }
                 ?: Toast.makeText(requireContext(), "Game not loaded yet", Toast.LENGTH_SHORT).show()
         }
 
         return view
     }
 
-    // Database and API calls
+    // Fetch all games
     private fun fetchAllGames() {
-        val dao = AppDatabase.getDatabase(requireContext()).gameDao()
-        val repository = GameRepository(dao, RetrofitClient.api)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val games = if (NetworkUtils.isOnline(requireContext())) {
+                try {
+                    repository.syncFromApi()
+                    repository.getAllGames()
+                } catch (_: Exception) {
+                    repository.getAllGames()
+                }
+            } else {
+                repository.getAllGames()
+            }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val games = repository.getAllGames().map { it.name }
             allGames.clear()
-            allGames.addAll(games)
-            CoroutineScope(Dispatchers.Main).launch { adapter.notifyDataSetChanged() }
+            allGames.addAll(games.map { it.name })
+            withContext(Dispatchers.Main) {
+                adapter.notifyDataSetChanged()
+            }
         }
     }
 
-    private fun fetchRandomGame() {
-        val dao = AppDatabase.getDatabase(requireContext()).gameDao()
-        val repository = GameRepository(dao, RetrofitClient.api)
 
-        CoroutineScope(Dispatchers.IO).launch {
+    // Fetch random game
+    private fun fetchRandomGame() {
+        lifecycleScope.launch(Dispatchers.IO) {
             val game = repository.getRandomGame()
             game?.let {
                 currentGameId = it.id
                 currentGameName = it.name
                 currentGameCover = it.coverImageUrl
 
-                CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main) {
                     keywordsChipGroup.removeAllViews()
                     it.keywords.forEach { keyword -> addChip(keyword) }
                     resultText.text = ""
@@ -152,35 +153,39 @@ class CompareGameFragment : Fragment() {
         }
     }
 
+
+    // Submit guess
     private fun submitGuess(gameId: String, guess: String) {
-
-        RetrofitClient.api.compareGame(CompareRequest(gameId, guess))
-            .enqueue(object : Callback<ComparisonResponse> {
-
-                override fun onResponse(
-                    call: Call<ComparisonResponse>,
-                    response: Response<ComparisonResponse>
-                ) {
-                    val result = response.body() ?: return
-
-                    updateComparisonUI(result.matches)
-
-                    if (result.correct) {
-                        showEndGameDialog(true, currentGameName ?: "Unknown", currentGameCover)
-                    } else {
-                        loseHeart()
-                    }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val response: ComparisonResponse? = try {
+                // Online or offline via repository
+                repository.compareGame(CompareRequest(gameId, guess))
+            } catch (_: Exception) {
+                // In case repository fails, fallback offline
+                val game = repository.getGameByIdOfflineSafe(gameId)
+                val matches = mutableMapOf<String, String>()
+                game?.keywords?.forEach { keyword ->
+                    matches[keyword] = if (keyword.equals(guess, ignoreCase = true)) "exact" else "partial"
                 }
+                ComparisonResponse(
+                    correct = matches.any { it.value == "exact" },
+                    matches = matches
+                )
+            }
 
-                override fun onFailure(call: Call<ComparisonResponse>, t: Throwable) {
-                    Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
+            val matches = response?.matches ?: emptyMap()
+            val correct = response?.correct ?: matches.any { it.value == "exact" }
+
+            withContext(Dispatchers.Main) {
+                processComparisonResult(matches, correct)
+            }
+        }
     }
 
-    // UI Updating
-    private fun updateComparisonUI(matches: Map<String, String>) {
 
+
+    // Update UI with guess result
+    private fun processComparisonResult(matches: Map<String, String>, correct: Boolean) {
         val card = layoutInflater.inflate(R.layout.item_guess_card, null)
         val guessTitle = card.findViewById<TextView>(R.id.guessTitle)
         val chipContainer = card.findViewById<FlexboxLayout>(R.id.chipContainer)
@@ -188,38 +193,34 @@ class CompareGameFragment : Fragment() {
         guessTitle.text = "You guessed: ${guessInput.text}"
 
         for ((key, status) in matches) {
-
             val chipView = layoutInflater.inflate(R.layout.item_match_chip, null)
             val chip = chipView.findViewById<TextView>(R.id.matchChip)
-
             chip.text = key
-
             val color = when (status.lowercase()) {
                 "exact" -> R.color.green
                 "partial" -> R.color.orange
                 else -> R.color.red
             }
-
-            chip.backgroundTintList = ColorStateList.valueOf(
-                resources.getColor(color, null)
-            )
-
+            chip.backgroundTintList = ColorStateList.valueOf(resources.getColor(color, null))
             chipContainer.addView(chipView)
         }
 
         comparisonContainer.addView(card, 0)
+
+        if (correct) {
+            showEndGameDialog(true, currentGameName ?: "Unknown", currentGameCover)
+        } else {
+            loseHeart()
+        }
     }
 
 
-
-
+    // Heart management
     private fun loseHeart() {
         if (hearts.isNotEmpty()) {
             val lastHeart = hearts.removeAt(hearts.size - 1)
-
             lastHeart.visibility = View.INVISIBLE
         }
-
         if (hearts.isEmpty()) {
             showEndGameDialog(false, currentGameName ?: "Unknown", currentGameCover)
             guessButton.isEnabled = false
@@ -248,54 +249,31 @@ class CompareGameFragment : Fragment() {
         keywordsChipGroup.addView(chip)
     }
 
-    // End Game Dialog
+
+    // End game dialog and streak
     private fun showEndGameDialog(won: Boolean, gameName: String, coverUrl: String?) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_end_game, null)
-
         val imageView = dialogView.findViewById<ImageView>(R.id.gameCoverImage)
         val titleText = dialogView.findViewById<TextView>(R.id.dialogTitle)
         val nameText = dialogView.findViewById<TextView>(R.id.gameName)
         val playAgainBtn = dialogView.findViewById<Button>(R.id.playAgainButton)
         val mainMenuBtn = dialogView.findViewById<Button>(R.id.mainMenuButton)
 
-        if (won) {
-            titleText.text = getString(R.string.congrats)
-            lifecycleScope.launch(Dispatchers.IO) {
-                val userId = getLoggedInUserId()
-                if (userId == null) return@launch
-
-                val user = userDao.getUser(userId)
-                if (user != null) {
-                    // Check if the last win was on a different day
-                    if (!isToday(user.lastPlayedCG)) {
-                        user.streakCG += 1 // Increment the streak
-                    }
-                    // Update the best streak if the current one is higher
-                    if (user.streakCG > user.bestStreakCG) {
-                        user.bestStreakCG = user.streakCG
-                    }
-
-                    // Update the last played date to now
-                    user.lastPlayedCG = System.currentTimeMillis()
-
-                    // Save the updated user back to the database
-                    userDao.updateUser(user)
-
-                    // You can update the UI on the main thread
-                    withContext(Dispatchers.Main) {
-                        // e.g., Toast.makeText(context, "Streak: ${user.streakCG}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        } else {
-            titleText.text = getString(R.string.failure)
-        }
+        titleText.text = if (won) getString(R.string.congrats) else getString(R.string.failure)
         nameText.text = "The game was: $gameName"
 
-        coverUrl?.let {
-            Glide.with(this)
-                .load(it)
-                .into(imageView)
+        coverUrl?.let { Glide.with(this).load(it).into(imageView) }
+
+        if (won) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val userId = getLoggedInUserId() ?: return@launch
+                val user = userDao.getUser(userId) ?: return@launch
+
+                if (!isToday(user.lastPlayedCG)) user.streakCG += 1
+                if (user.streakCG > user.bestStreakCG) user.bestStreakCG = user.streakCG
+                user.lastPlayedCG = System.currentTimeMillis()
+                userDao.updateUser(user)
+            }
         }
 
         val dialog = AlertDialog.Builder(requireContext())
@@ -307,10 +285,9 @@ class CompareGameFragment : Fragment() {
             dialog.dismiss()
             resetGame()
         }
-
         mainMenuBtn.setOnClickListener {
             dialog.dismiss()
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            requireActivity().onBackPressed()
         }
 
         dialog.show()
@@ -325,21 +302,16 @@ class CompareGameFragment : Fragment() {
         fetchRandomGame()
     }
 
-    //Matthew code down here
-    // Helper function to check if a timestamp is from today
+
+    // Helpers
     private fun isToday(timestamp: Long): Boolean {
         if (timestamp == 0L) return false
-        val lastPlayedCal = Calendar.getInstance()
-        lastPlayedCal.timeInMillis = timestamp
-
-        val todayCal = Calendar.getInstance()
-
-        return lastPlayedCal.get(Calendar.YEAR) == todayCal.get(Calendar.YEAR) &&
-                lastPlayedCal.get(Calendar.DAY_OF_YEAR) == todayCal.get(Calendar.DAY_OF_YEAR)
+        val cal = Calendar.getInstance().apply { timeInMillis = timestamp }
+        val today = Calendar.getInstance()
+        return cal.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                cal.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
     }
 
-
-    // Helper function to get the user ID (you might get this from SharedPreferences)
     private fun getLoggedInUserId(): String? {
         val prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         return prefs.getString("userId", null)

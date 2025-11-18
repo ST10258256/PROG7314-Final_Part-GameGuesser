@@ -28,6 +28,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import android.app.AlarmManager
+import androidx.lifecycle.lifecycleScope
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -79,13 +80,18 @@ class MainActivity : AppCompatActivity() {
             scheduleNotifications()
         }
 
-          val dao = AppDatabase.getDatabase(this).gameDao()
-        val repository = GameRepository(dao, RetrofitClient.api)
+        // --- Start background sync ---
+        val dao = AppDatabase.getDatabase(this).gameDao()
+        val repository = GameRepository(dao, RetrofitClient.api, this)
+
         CoroutineScope(Dispatchers.IO).launch {
             repository.syncFromApi()
         }
 
-         binding = ActivityMainBinding.inflate(layoutInflater)
+
+
+        // --- ViewBinding ---
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
