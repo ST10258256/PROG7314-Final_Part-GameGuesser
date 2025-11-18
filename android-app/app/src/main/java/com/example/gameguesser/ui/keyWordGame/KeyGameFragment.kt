@@ -31,9 +31,7 @@ class KeyGameFragment : Fragment() {
     private lateinit var userDao: UserDao
     private lateinit var repository: GameRepository
 
-    private var currentGameId: String? = null
-    private var currentGameName: String? = null
-    private var currentGameCover: String? = null
+    private var currentGame: com.example.gameguesser.data.Game? = null
 
     private lateinit var resultText: TextView
     private lateinit var guessInput: AutoCompleteTextView
@@ -53,17 +51,20 @@ class KeyGameFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_key_game, container, false)
 
+        // Database & repository setup
         userDb = UserDatabase.getDatabase(requireContext())
         userDao = userDb.userDao()
         val gameDao = AppDatabase.getDatabase(requireContext()).gameDao()
         repository = GameRepository(gameDao, RetrofitClient.api, requireContext())
 
+        // UI references
         resultText = view.findViewById(R.id.resultText)
         guessInput = view.findViewById(R.id.guessInput)
         guessButton = view.findViewById(R.id.guessButton)
         keywordsChipGroup = view.findViewById(R.id.keywordsChipGroup)
         heartsContainer = view.findViewById(R.id.guessHeartsContainer)
 
+        // AutoComplete setup
         adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, allGames)
         guessInput.setAdapter(adapter)
 
@@ -74,6 +75,7 @@ class KeyGameFragment : Fragment() {
             hearts.add(heart)
         }
 
+        // Fetch games & random game
         fetchAllGames()
         fetchRandomGame()
 
@@ -81,29 +83,28 @@ class KeyGameFragment : Fragment() {
         guessInput.addTextChangedListener { editable ->
             val input = editable.toString()
             val filtered = allGames.filter { it.contains(input, ignoreCase = true) }
-            adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, filtered)
-            guessInput.setAdapter(adapter)
+            adapter.clear()
+            adapter.addAll(filtered)
             adapter.notifyDataSetChanged()
             guessInput.showDropDown()
         }
 
+        // Guess button
         guessButton.setOnClickListener {
             val guess = guessInput.text.toString()
             if (guess.isBlank()) {
                 Toast.makeText(requireContext(), "Enter a guess", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            currentGameId?.let { id ->
-                submitGuess(id, guess)
-            } ?: Toast.makeText(requireContext(), "Game not loaded yet", Toast.LENGTH_SHORT).show()
+            currentGame?.let { game -> submitGuess(game, guess) }
+                ?: Toast.makeText(requireContext(), "Game not loaded yet", Toast.LENGTH_SHORT).show()
         }
 
         return view
     }
 
-    // ---------------------------
+
     // Fetch all games (Offline-Ready)
-    // ---------------------------
     private fun fetchAllGames() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -112,38 +113,26 @@ class KeyGameFragment : Fragment() {
                 }
 
                 val games = repository.findGamesByKeyword("")
-
                 allGames.clear()
                 allGames.addAll(games.map { it.name })
 
-                withContext(Dispatchers.Main) {
-                    adapter.notifyDataSetChanged()
-                }
+                withContext(Dispatchers.Main) { adapter.notifyDataSetChanged() }
 
             } catch (e: Exception) {
                 val fallbackGames = repository.findGamesByKeyword("")
                 allGames.clear()
                 allGames.addAll(fallbackGames.map { it.name })
-
-                withContext(Dispatchers.Main) {
-                    adapter.notifyDataSetChanged()
-                }
+                withContext(Dispatchers.Main) { adapter.notifyDataSetChanged() }
             }
         }
     }
 
-
-    // ---------------------------
     // Fetch random game
-    // ---------------------------
     private fun fetchRandomGame() {
         lifecycleScope.launch(Dispatchers.IO) {
             val game = repository.getRandomGame()
             game?.let {
-                currentGameId = it.id
-                currentGameName = it.name
-                currentGameCover = it.coverImageUrl
-
+                currentGame = it
                 withContext(Dispatchers.Main) {
                     keywordsChipGroup.removeAllViews()
                     it.keywords.forEach { keyword -> addChip(keyword) }
@@ -155,48 +144,28 @@ class KeyGameFragment : Fragment() {
         }
     }
 
-    // ---------------------------
-    // Submit guess (Offline-Ready)
-    // ---------------------------
-    private fun submitGuess(gameId: String, guess: String) {
-        if (NetworkUtils.isOnline(requireContext())) {
-            RetrofitClient.api.submitGuess(gameId, guess).enqueue(object :
-                retrofit2.Callback<com.example.gameguesser.models.GuessResponse> {
 
-                override fun onResponse(
-                    call: retrofit2.Call<com.example.gameguesser.models.GuessResponse>,
-                    response: retrofit2.Response<com.example.gameguesser.models.GuessResponse>
-                ) {
-                    val result = response.body()
-                    processGuessResult(result?.correct ?: false, result?.hint)
-                }
+    // Submit guess (Offline)
+    private fun submitGuess(game: com.example.gameguesser.data.Game, guess: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val response = if (NetworkUtils.isOnline(requireContext())) {
+                repository.submitGuess(game.id, guess)
+            } else null
 
-                override fun onFailure(
-                    call: retrofit2.Call<com.example.gameguesser.models.GuessResponse>,
-                    t: Throwable
-                ) {
-                    Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
-        } else {
-            // OFFLINE fallback: match keyword to random game
-            lifecycleScope.launch(Dispatchers.IO) {
-                val game = repository.getRandomGame()
-                val correct = game?.keywords?.any { it.equals(guess, ignoreCase = true) } ?: false
-                val hint = if (!correct && game != null && game.keywords.isNotEmpty()) game.keywords.random() else null
-                withContext(Dispatchers.Main) {
-                    processGuessResult(correct, hint)
-                }
+            val correct = response?.correct ?: game.keywords.any { it.equals(guess, true) }
+            val hint = response?.hint ?: if (!correct && game.keywords.isNotEmpty()) game.keywords.random() else null
+
+            withContext(Dispatchers.Main) {
+                processGuessResult(correct, hint)
             }
         }
     }
 
-    // ---------------------------
+
     // Process guess result
-    // ---------------------------
     private fun processGuessResult(correct: Boolean, hint: String?) {
         if (correct) {
-            showEndGameDialog(true, currentGameName ?: "Unknown", currentGameCover)
+            showEndGameDialog(true, currentGame?.name ?: "Unknown", currentGame?.coverImageUrl)
         } else {
             if (hearts.isNotEmpty()) {
                 val lastHeart = hearts.removeAt(hearts.size - 1)
@@ -205,7 +174,7 @@ class KeyGameFragment : Fragment() {
             hint?.let { addChip(it) }
             resultText.text = "Wrong"
             if (hearts.isEmpty()) {
-                showEndGameDialog(false, currentGameName ?: "Unknown", currentGameCover)
+                showEndGameDialog(false, currentGame?.name ?: "Unknown", currentGame?.coverImageUrl)
                 guessButton.isEnabled = false
                 guessInput.isEnabled = false
             } else {
@@ -214,9 +183,8 @@ class KeyGameFragment : Fragment() {
         }
     }
 
-    // ---------------------------
+
     // UI helpers
-    // ---------------------------
     private fun resetHearts() {
         hearts.clear()
         for (i in 0 until maxLives) {
@@ -238,9 +206,8 @@ class KeyGameFragment : Fragment() {
         keywordsChipGroup.addView(chip)
     }
 
-    // ---------------------------
+
     // End game dialog + streaks
-    // ---------------------------
     private fun showEndGameDialog(won: Boolean, gameName: String, coverUrl: String?) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_end_game, null)
         val imageView = dialogView.findViewById<ImageView>(R.id.gameCoverImage)
@@ -290,9 +257,7 @@ class KeyGameFragment : Fragment() {
         fetchRandomGame()
     }
 
-    // ---------------------------
     // Helpers
-    // ---------------------------
     private fun isToday(timestamp: Long): Boolean {
         if (timestamp == 0L) return false
         val lastPlayedCal = Calendar.getInstance().apply { timeInMillis = timestamp }
@@ -306,4 +271,3 @@ class KeyGameFragment : Fragment() {
         return prefs.getString("userId", null)
     }
 }
-

@@ -19,18 +19,15 @@ import com.example.gameguesser.Database.UserDatabase
 import com.example.gameguesser.R
 import com.example.gameguesser.data.RetrofitClient
 import com.example.gameguesser.models.CompareRequest
+import com.example.gameguesser.models.ComparisonResponse
 import com.example.gameguesser.repository.GameRepository
 import com.example.gameguesser.utils.NetworkUtils
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class CompareGameFragment : Fragment() {
 
@@ -60,14 +57,15 @@ class CompareGameFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_compare_game, container, false)
 
+        // Initialize DBs and repository
         userDb = UserDatabase.getDatabase(requireContext())
         userDao = userDb.userDao()
         val gameDao = AppDatabase.getDatabase(requireContext()).gameDao()
         repository = GameRepository(gameDao, RetrofitClient.api, requireContext())
 
+        // UI elements
         resultText = view.findViewById(R.id.resultText)
         guessInput = view.findViewById(R.id.guessInput)
         guessButton = view.findViewById(R.id.guessButton)
@@ -104,27 +102,25 @@ class CompareGameFragment : Fragment() {
                 Toast.makeText(requireContext(), "Enter a guess", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            currentGameId?.let { id -> submitGuess(id, guess) }
+            currentGameId?.let { submitGuess(it, guess) }
                 ?: Toast.makeText(requireContext(), "Game not loaded yet", Toast.LENGTH_SHORT).show()
         }
 
         return view
     }
 
-    // ---------------------------
-    // Fetch all games (Offline-Ready)
-    // ---------------------------
+    // Fetch all games
     private fun fetchAllGames() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val games = if (NetworkUtils.isOnline(requireContext())) {
                 try {
                     repository.syncFromApi()
                     repository.getAllGames()
-                } catch (e: Exception) {
-                    repository.getAllGames() // fallback
+                } catch (_: Exception) {
+                    repository.getAllGames()
                 }
             } else {
-                repository.getAllGames() // offline fallback
+                repository.getAllGames()
             }
 
             allGames.clear()
@@ -135,11 +131,10 @@ class CompareGameFragment : Fragment() {
         }
     }
 
-    // ---------------------------
+
     // Fetch random game
-    // ---------------------------
     private fun fetchRandomGame() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val game = repository.getRandomGame()
             game?.let {
                 currentGameId = it.id
@@ -158,53 +153,38 @@ class CompareGameFragment : Fragment() {
         }
     }
 
-    // ---------------------------
-    // Submit guess (Offline-Ready)
-    // ---------------------------
+
+    // Submit guess
     private fun submitGuess(gameId: String, guess: String) {
-        if (NetworkUtils.isOnline(requireContext())) {
-            // original API call
-            RetrofitClient.api.compareGame(CompareRequest(gameId, guess))
-                .enqueue(object : Callback<com.example.gameguesser.models.ComparisonResponse> {
-                    override fun onResponse(
-                        call: Call<com.example.gameguesser.models.ComparisonResponse>,
-                        response: Response<com.example.gameguesser.models.ComparisonResponse>
-                    ) {
-                        val result = response.body()
-                        processComparisonResult(result?.matches ?: emptyMap(), result?.correct ?: false)
-                    }
-
-                    override fun onFailure(
-                        call: Call<com.example.gameguesser.models.ComparisonResponse>,
-                        t: Throwable
-                    ) {
-                        Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                    }
-                })
-        } else {
-            // OFFLINE fallback: match against Room data
-            CoroutineScope(Dispatchers.IO).launch {
-                val game = repository.getGameById(gameId)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val response: ComparisonResponse? = try {
+                // Online or offline via repository
+                repository.compareGame(CompareRequest(gameId, guess))
+            } catch (_: Exception) {
+                // In case repository fails, fallback offline
+                val game = repository.getGameByIdOfflineSafe(gameId)
                 val matches = mutableMapOf<String, String>()
-
-                if (game != null) {
-                    game.keywords.forEach { keyword ->
-                        matches[keyword] = if (keyword.equals(guess, true)) "exact" else "partial"
-                    }
+                game?.keywords?.forEach { keyword ->
+                    matches[keyword] = if (keyword.equals(guess, ignoreCase = true)) "exact" else "partial"
                 }
+                ComparisonResponse(
+                    correct = matches.any { it.value == "exact" },
+                    matches = matches
+                )
+            }
 
-                val correct = matches.any { it.value == "exact" }
+            val matches = response?.matches ?: emptyMap()
+            val correct = response?.correct ?: matches.any { it.value == "exact" }
 
-                withContext(Dispatchers.Main) {
-                    processComparisonResult(matches, correct)
-                }
+            withContext(Dispatchers.Main) {
+                processComparisonResult(matches, correct)
             }
         }
     }
 
-    // ---------------------------
+
+
     // Update UI with guess result
-    // ---------------------------
     private fun processComparisonResult(matches: Map<String, String>, correct: Boolean) {
         val card = layoutInflater.inflate(R.layout.item_guess_card, null)
         val guessTitle = card.findViewById<TextView>(R.id.guessTitle)
@@ -234,15 +214,13 @@ class CompareGameFragment : Fragment() {
         }
     }
 
-    // ---------------------------
-    // Lives / hearts management
-    // ---------------------------
+
+    // Heart management
     private fun loseHeart() {
         if (hearts.isNotEmpty()) {
             val lastHeart = hearts.removeAt(hearts.size - 1)
             lastHeart.visibility = View.INVISIBLE
         }
-
         if (hearts.isEmpty()) {
             showEndGameDialog(false, currentGameName ?: "Unknown", currentGameCover)
             guessButton.isEnabled = false
@@ -271,9 +249,8 @@ class CompareGameFragment : Fragment() {
         keywordsChipGroup.addView(chip)
     }
 
-    // ---------------------------
-    // End Game Dialog + streak
-    // ---------------------------
+
+    // End game dialog and streak
     private fun showEndGameDialog(won: Boolean, gameName: String, coverUrl: String?) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_end_game, null)
         val imageView = dialogView.findViewById<ImageView>(R.id.gameCoverImage)
@@ -285,9 +262,7 @@ class CompareGameFragment : Fragment() {
         titleText.text = if (won) getString(R.string.congrats) else getString(R.string.failure)
         nameText.text = "The game was: $gameName"
 
-        if (coverUrl != null) {
-            Glide.with(this).load(coverUrl).into(imageView)
-        }
+        coverUrl?.let { Glide.with(this).load(it).into(imageView) }
 
         if (won) {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -327,9 +302,8 @@ class CompareGameFragment : Fragment() {
         fetchRandomGame()
     }
 
-    // ---------------------------
+
     // Helpers
-    // ---------------------------
     private fun isToday(timestamp: Long): Boolean {
         if (timestamp == 0L) return false
         val cal = Calendar.getInstance().apply { timeInMillis = timestamp }
