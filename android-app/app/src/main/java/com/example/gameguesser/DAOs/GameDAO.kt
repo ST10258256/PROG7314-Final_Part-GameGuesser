@@ -17,7 +17,8 @@ interface GameDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGame(game: Game)
+
+    @Query("DELETE FROM games")
+    suspend fun clearGames()
 }
-
-
 

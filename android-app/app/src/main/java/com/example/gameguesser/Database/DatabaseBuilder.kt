@@ -17,7 +17,8 @@ object DatabaseBuilder {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "gameguessr_database"
-            ).build()
+            )
+                .build()
             INSTANCE = instance
             instance
         }
