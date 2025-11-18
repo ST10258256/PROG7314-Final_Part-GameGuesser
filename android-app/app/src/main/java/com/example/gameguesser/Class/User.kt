@@ -18,5 +18,9 @@ data class User(
     // Last played date for Compare Game streak
     var lastPlayedCG: Long = 0L,
     // Last played date for Compare Game streak
-    var lastPlayedKW: Long = 0L
+    var lastPlayedKW: Long = 0L,
+    // consec streak for Compare game
+    var consecStreakCG: Int = 0,
+    // consec streak for Compare game
+    var consecStreakKW: Int = 0
 )

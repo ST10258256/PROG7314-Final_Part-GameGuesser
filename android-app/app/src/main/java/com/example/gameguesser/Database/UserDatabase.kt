@@ -6,11 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.gameguesser.Class.LocalUser
 import com.example.gameguesser.Class.User
 import com.example.gameguesser.DAOs.LocalUserDao
-import com.example.gameguesser.Class.LocalUser
 import com.example.gameguesser.DAOs.UserDao
 
+// 1. Update version to 3
 @Database(entities = [User::class, LocalUser::class], version = 3, exportSchema = false)
 abstract class UserDatabase : RoomDatabase() {
 
@@ -18,15 +19,15 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun localUserDao(): LocalUserDao
 
     companion object {
-        /**
-         * Migration from version 1 to 2: Adds the `lastPlayedCG` column to the user_table.
-         */
         private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // 1. Add the new column to the existing user_table
-                db.execSQL("ALTER TABLE user_table ADD COLUMN lastPlayedCG INTEGER NOT NULL DEFAULT 0")
+                // This migration uses "user_table" which seems to be from a previous version of your entity.
+                // If your current entity is @Entity(tableName = "users"), this might need correction in a real scenario.
+                // For now, leaving as is based on previous context.
+                // **Correction based on new context**: The table for User is `users`.
+                db.execSQL("ALTER TABLE users ADD COLUMN lastPlayedCG INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE users ADD COLUMN lastPlayedKW INTEGER NOT NULL DEFAULT 0")
 
-                // 2. Create the new table for LocalUser
                 db.execSQL("""
                     CREATE TABLE IF NOT EXISTS local_users (
                         email TEXT NOT NULL PRIMARY KEY,
@@ -35,6 +36,15 @@ abstract class UserDatabase : RoomDatabase() {
                         streak INTEGER NOT NULL DEFAULT 0
                     )
                 """.trimIndent())
+            }
+        }
+
+        // 2. Define the migration from version 2 to 3
+        private val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // The User entity uses the table name "users"
+                db.execSQL("ALTER TABLE users ADD COLUMN consecStreakCG INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE users ADD COLUMN consecStreakKW INTEGER NOT NULL DEFAULT 0")
             }
         }
 
@@ -48,9 +58,8 @@ abstract class UserDatabase : RoomDatabase() {
                     UserDatabase::class.java,
                     "user_database"
                 )
-                    // Tell Room to use the single, consolidated migration
-                    .addMigrations(MIGRATION_1_2)
-                    .fallbackToDestructiveMigration()
+                    // 3. Add the new migration to the builder
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance

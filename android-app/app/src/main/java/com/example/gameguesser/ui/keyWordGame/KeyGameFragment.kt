@@ -186,6 +186,7 @@ class KeyGameFragment : Fragment() {
         val titleText = dialogView.findViewById<TextView>(R.id.dialogTitle)
         val playAgainBtn = dialogView.findViewById<Button>(R.id.playAgainButton)
         val mainMenuBtn = dialogView.findViewById<Button>(R.id.mainMenuButton)
+        val consecutiveStreak = dialogView.findViewById<TextView>(R.id.consecutiveStreak)
 
         if (won) {
             titleText.text = "Congratulations"
@@ -204,6 +205,9 @@ class KeyGameFragment : Fragment() {
                         user.bestStreakKW = user.streakKW
                     }
 
+                    user.consecStreakKW += 1 // Increment the consecutive streak
+                    consecutiveStreak.text = getString(R.string.consec_streak, user.consecStreakKW)
+
                     // Update the last played date to now
                     user.lastPlayedKW = System.currentTimeMillis()
 
@@ -218,6 +222,16 @@ class KeyGameFragment : Fragment() {
             }
         } else {
             titleText.text = "Better luck next time"
+            lifecycleScope.launch(Dispatchers.IO) {
+                val userId = getLoggedInUserId() // You need a function to get the current user's ID
+                if (userId == null) return@launch
+
+                val user = userDao.getUser(userId)
+                if (user != null) {
+
+                    user.consecStreakKW = 0 // Increment the consecutive streak
+                }
+            }
         }
 
         coverUrl?.let {

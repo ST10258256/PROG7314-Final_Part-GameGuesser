@@ -257,6 +257,7 @@ class CompareGameFragment : Fragment() {
         val nameText = dialogView.findViewById<TextView>(R.id.gameName)
         val playAgainBtn = dialogView.findViewById<Button>(R.id.playAgainButton)
         val mainMenuBtn = dialogView.findViewById<Button>(R.id.mainMenuButton)
+        val consecutiveStreak = dialogView.findViewById<TextView>(R.id.consecutiveStreak)
 
         if (won) {
             titleText.text = getString(R.string.congrats)
@@ -278,6 +279,9 @@ class CompareGameFragment : Fragment() {
                     // Update the last played date to now
                     user.lastPlayedCG = System.currentTimeMillis()
 
+                    user.consecStreakCG += 1 // Increment the consecutive streak
+                    consecutiveStreak.text = getString(R.string.consec_streak, user.consecStreakCG)
+
                     // Save the updated user back to the database
                     userDao.updateUser(user)
 
@@ -289,6 +293,16 @@ class CompareGameFragment : Fragment() {
             }
         } else {
             titleText.text = getString(R.string.failure)
+            lifecycleScope.launch(Dispatchers.IO) {
+                val userId = getLoggedInUserId() // You need a function to get the current user's ID
+                if (userId == null) return@launch
+
+                val user = userDao.getUser(userId)
+                if (user != null) {
+
+                    user.consecStreakCG = 0 // reset the consecutive streak
+                }
+            }
         }
         nameText.text = "The game was: $gameName"
 

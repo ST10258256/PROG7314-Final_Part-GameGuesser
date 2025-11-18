@@ -50,6 +50,7 @@
     <string name="failure">Better luck next time</string>
     <string name="congrats">Congratulations</string>
     <string name="gameReveal">The game was: </string>
+    <string name="consec_streak">Consecutive Streak: %d</string>
 
     <!-- home -->
     <string name="welcome_title">Hi, Welcome Back</string>
