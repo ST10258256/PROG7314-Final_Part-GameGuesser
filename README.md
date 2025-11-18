@@ -10,6 +10,7 @@ This project has been developed for the course PROG7314
 ## Features 
 The features for this project include 
 - Two Game modes where the user will guess the game's name from the given criteria that they give you
+- and a streak fetaure to incetivise play
 -  A Enclclopedia where it will list all the games from the database, and the user will be able to filter the games to met some criteria
   - A chatbot that will allow the user to query it.
 - There is a settings page where the user can change the language for the app, the user details, log out

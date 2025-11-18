@@ -28,7 +28,6 @@ class ReminderReceiver : BroadcastReceiver() {
             .build()
 
         val notificationId = System.currentTimeMillis().toInt()
-        NotificationManagerCompat.from(context).notify(notificationId, notification)
+        NotificationManagerCompat .from(context).notify(notificationId, notification)
     }
 }
-

@@ -1,6 +1,8 @@
 package com.example.gameguesser.ui.encyclopedia
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
@@ -34,23 +37,21 @@ class EncyclopediaFragment : Fragment() {
     private lateinit var adapter: GameAdapter
     private var allGames = listOf<Game>()
 
-    // filter options
     private val genreOptions = listOf("All", "Action", "Action-Adventure", "Action‑RPG","Battle Royale", "Card Battle", "Co-op Adventure", "Fashion", "Fighting", "First-Person Shooter", "Fitness", "Life Simulation", "MOBA","Metroidvania","RPG","Racing","Real Time Tactics","Retro","Roguelike","Sandbox","Soulslike","Sports","Stealth","Strategy","Survival Horror", "Third‑Person Shooter","Tower Defense","Trivia","Other")
     private val platformOptions = listOf("All", "PC", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5", "Xbox 360", "Xbox Series X/S","Mac","Wii","3DS","iOS","Android","macOS","Windows", "Nintendo Switch", "Linux", "Xbox One","Nintendo DS","DS","Game Boy Advance","GameCube","Wii U","Switch","IOS Mobile","Xbox","PlayStation","OS X","PlayStation Vita","Mac OS X")
     private val povOptions = listOf("All", "First-person", "Third-person", "Top-down", "Side-scroll", "Isometric", "2.5D", "2D", "Dual Perspective", "Multiple","Various")
 
-    // current filter/search state
     private var currentGenre = "All"
     private var currentPlatform = "All"
     private var currentPOV = "All"
     private var currentYear = "All"
     private var currentSearch = ""
 
-    // debounce job for showing the toast only after changes settle
     private var toastJob: Job? = null
     private var currentToast: Toast? = null
     private val toastDebounceMs = 400L
 
+    @SuppressLint("RestrictedApi")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -67,9 +68,19 @@ class EncyclopediaFragment : Fragment() {
         }
         recyclerView.adapter = adapter
 
-        // SearchView
+        // SearchView setup
         val searchView = view.findViewById<SearchView>(R.id.searchViewGames)
         searchView.queryHint = "Search games..."
+
+        val searchEditText = searchView.findViewById<SearchView.SearchAutoComplete>(
+            androidx.appcompat.R.id.search_src_text
+        )
+        searchEditText.setTextColor(Color.WHITE)
+        searchEditText.setHintTextColor(Color.WHITE)
+
+        val searchIcon = searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
+        searchIcon.setColorFilter(Color.WHITE)
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 currentSearch = query?.trim() ?: ""
@@ -95,13 +106,11 @@ class EncyclopediaFragment : Fragment() {
         }
 
         fetchGames()
-
         return view
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Cancel any pending toast job and active toast when view is destroyed
         toastJob?.cancel()
         currentToast?.cancel()
     }
@@ -137,11 +146,9 @@ class EncyclopediaFragment : Fragment() {
         spinnerPlatform.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, platformOptions)
         spinnerPOV.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, povOptions)
 
-        // build year options from allGames (if available)
         val years = mutableListOf("All") + allGames.mapNotNull { it.releaseYear?.toString() }.distinct().sortedDescending()
         spinnerYear.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, years)
 
-        // pre-select current filter values if they exist
         spinnerGenre.setSelection(genreOptions.indexOf(currentGenre).coerceAtLeast(0))
         spinnerPlatform.setSelection(platformOptions.indexOf(currentPlatform).coerceAtLeast(0))
         spinnerPOV.setSelection(povOptions.indexOf(currentPOV).coerceAtLeast(0))
@@ -159,7 +166,6 @@ class EncyclopediaFragment : Fragment() {
         dialog.show()
     }
 
-    // Update current filter selection and re-apply combined filter + search
     private fun applyFilter(genre: String, platform: String, pov: String, year: String) {
         currentGenre = genre
         currentPlatform = platform
@@ -168,7 +174,6 @@ class EncyclopediaFragment : Fragment() {
         applyFiltersAndSearch()
     }
 
-    // Core: apply both filters and the search query to allGames and update adapter
     private fun applyFiltersAndSearch() {
         val filtered = allGames.filter { game ->
             val genreMatch = currentGenre == "All" || (game.genre?.equals(currentGenre, ignoreCase = true) ?: false)
@@ -176,7 +181,6 @@ class EncyclopediaFragment : Fragment() {
             val platformMatch = currentPlatform == "All" || (game.platforms?.any { it.equals(currentPlatform, ignoreCase = true) } ?: false)
             val yearMatch = currentYear == "All" || (game.releaseYear?.toString() == currentYear)
 
-            // search: check name, maybe also description or developer if available
             val query = currentSearch.trim()
             val searchMatch = if (query.isEmpty()) {
                 true
@@ -194,9 +198,7 @@ class EncyclopediaFragment : Fragment() {
 
         adapter.updateGames(filtered)
 
-        // Debounce showing the toast so it only appears once after user stops changing filters/search
         toastJob?.cancel()
-        // Cancel any visible toast so toasts don't stack
         currentToast?.cancel()
         toastJob = lifecycleScope.launch {
             delay(toastDebounceMs)

@@ -15,6 +15,7 @@ class GameRepository(
             val response = api.getAllGamesFull().execute()
             val games = response.body() ?: emptyList()
             if (games.isNotEmpty()) {
+                dao.clearGames()
                 dao.insertGames(games)  // update local cache
             }
             games.ifEmpty { dao.getAllGames() } // fallback if empty
@@ -64,9 +65,12 @@ class GameRepository(
             val response = api.getAllGamesFull().execute()
             val games = response.body() ?: emptyList()
             if (games.isNotEmpty()) {
-                dao.insertGames(games)
+                dao.clearGames()
+                dao.insertGames(games)//will now clear any old stuff and replace it with the games yall added to mongo
             }
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+
+        }
     }
 }
 
